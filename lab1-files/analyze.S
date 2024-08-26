@@ -13,8 +13,10 @@ loop:
 	li	a7, 11				# environment call with a7 = 11 will print out
 	ecall					# one byte from a0 to the Run I/O window
 
-	addi	s0, s0, 0x01	# what happens if the constant is changed?
+	addi	s0, s0, 0x01			# what happens if the constant is changed?
 	
 	li	t0, 0x5A	
 	ble	s0, t0, loop
     	jr 	ra					
+
+

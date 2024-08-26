@@ -22,3 +22,9 @@ hex2asc:
 
   # You can write your own code for hexasc here
   #
+  
+hexasc:
+	li 	a7, 11
+	ecall	
+	
+	jr 	ra

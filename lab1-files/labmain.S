@@ -15,7 +15,7 @@
 # call.
 main:
     # Uncomment below for assignment 1
-    #jal analyze
+    # jal analyze
 
     # Uncomment below for assignment 2
     jal hex2asc

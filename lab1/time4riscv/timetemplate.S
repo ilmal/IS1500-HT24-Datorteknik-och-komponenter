@@ -40,6 +40,7 @@
 		.text
 		.globl timetemplate, tick, time2string
 	
+		
 	timetemplate:
 		la	a0, timstr
 		jal     display_string

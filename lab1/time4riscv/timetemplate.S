@@ -36,28 +36,29 @@
 		.data
 		.align 2
 	mytime:	.word 	0x5957
-	timstr:	.asciz "\0"	# null string
+	timstr:	.asciz "\0"
 		.text
 		.globl timetemplate, tick, time2string
 	
+		
 	timetemplate:
-		la	a0, timstr	# load adress timstr into a0
-		jal     display_string	# call display_string func
+		la	a0, timstr
+		jal     display_string
 		
 		# wait a little
-		li	a0, 10 		# ms (5000 ms = 5s)
-		jal	delay		# call delay func
+		li	a0, 5000 	# ms
+		jal	delay
 		
 		# call tick
-		la 	a0, mytime	# load adress mytime into a0 (current time)
-		jal	tick		# call tick func
+		la 	a0, mytime
+		jal	tick
 		
 		# call your function time2string
-		la	a0, timstr	# load adress timstr into a0 again
-		la	t0, mytime	# load mytime into t0
-		lw	a1, 0(t0)	# load t0 content into a1 without offset
+		la	a0, timstr
+		la	t0, mytime
+		lw	a1, 0(t0)
 		
-		jal	time2string	# call time2string
+		jal	time2string
 			
 		
 		# go back and do it all again
@@ -66,16 +67,15 @@
 	
 	# Function for displaying a string with a newline at the end	
 	display_string:	
-		li a7,4		# prints out string from a0, timstr
+		li a7,4
 		ecall
-		
-		li a0, 10	# prints out a new line
+		li a0, 10
 		li a7,11
 		ecall
 		
-		lb a0, 0(sp)	# Load the byte at address 0(sp) into a0 (first char).
-		ecall		# print out the character
-		lb a0, 1(sp)	
+		lb a0, 0(sp)
+		ecall
+		lb a0, 1(sp)
 		ecall
 		lb a0, 2(sp)
 		ecall
@@ -86,7 +86,7 @@
 		lb a0, 5(sp)
 		ecall
 		
-		addi    sp, sp, 12	# restore stack pointer
+		addi    sp, sp, 12
 		
 		jr ra
 		
@@ -94,10 +94,10 @@
 	# tick: update time pointed to by $a0
 	tick:	
 		lw	t0, 0(a0)	# get time
-		addi	t0, t0, 1	# increase time with 1
-		andi	t1, t0, 0xf	# check lowest digit (f = 1111)
-		sltiu	t2, t1, 0xa	# if digit < 10, okay
-		bnez	t2, tiend	# if t2 not equal to 0, goto tiend
+		addi	t0, t0, 1	# increase
+		andi	t1, t0, 0xf	# check lowest digit
+		sltiu	t2, t1, 0xa	# if digit < a, okay
+		bnez	t2, tiend
 		addi	t0, t0, 0x6	# adjust lowest digit
 		
 		andi	t1, t0, 0xf0	# check next digit
@@ -134,58 +134,58 @@
 	#########################################################
 	
 	delay:
-		li t0, 	125		# random test number
-		mul t1, t0, a0		# multiply to get total amount of cycles
-		li t0, 0		# set t0 to 0 to count loop
+		li t0, 	125		#freq 1.25 GHz ÷ 2 operations
+		mul t1, t0, a0		#multiply to get total amount of cycles
+		li t0, 0		#set t0 to 0 to count loop
 		
 		loop: 
-			addi t0, t0, 1		# add 1 to t0 loop counter
-			ble t0, t1, loop	# keep looping until t0 equals t1	
-		jr ra			# return
+			addi t0, t0, 1		#add 1 to t0 loop counter
+			ble t0, t1, loop	#keep looping until t0 equals t1	
+		jr ra
 		
 	
 	time2string:
-	    addi    sp, sp, -4		# adjust stack pointer 
-	    sw      ra, 0(sp)		# save return adress
+	    addi    sp, sp, -4
+	    sw      ra, 0(sp)
 	    
-	    addi    sp, sp, -8		# move stack pointer 8 pos. down
+	    addi    sp, sp, -8
 	    
 	    
 	    # Extract minutes (upper 8 bits) and convert to ASCII'
-	    li      t1, 0xF  		# Mask to get units place (1111)
-	    slli    t1, t1, 12   	# Extract minutes (shift left 12 times -> 1111 0000 0000 0000)
-	    and     t1, a1, t1  	# Mask to get tens place (only 1 and 1 equals T for and-operation)
-	    srli    a0, t1, 12   # Shift right to get digit (0000 0000 0000 xxxx)
-	    jal     hex2asc     # Convert to ASCII character
-	    sb      a0, 0(sp)   # Store ASCII character in the string 
+	    li      t1, 0xF  		# Mask to get units place
+	    slli    t1, t1, 12   	# Extract minutes
+	    and     t1, a1, t1  	# Mask to get tens place
+	    srli    a0, t1, 12   # Shift right to get digit
+	    jal     hex2asc     # Convert to ASCII
+	    sb      a0, 0(sp)   # Store ASCII character in the string
 	    
 	    li      t1, 0xF  		# Mask to get units place
-	    slli    t1, t1, 8   	# Extract minutes (0000 1111 0000 0000)
+	    slli    t1, t1, 8   	# Extract minutes
 	    and     t1, a1, t1 	# Mask to get units place
 	    srli    a0, t1, 8   # Shift right to get digit
 	    jal     hex2asc     # Convert to ASCII
-	    sb      a0, 1(sp)   # Store ASCII character next in the string
+	    sb      a0, 1(sp)   # Store ASCII character in the string
 	    
 	    # Store colon character
-	    li      a0, 0x3A    # ASCII for ':'
-	    sb      a0, 2(sp)   # Store next in the string
+	    li      a0, 0x3A    # ASCII ':'
+	    sb      a0, 2(sp)   # Store in the string
 	    
 	    li      t1, 0xF  		
-	    slli    t1, t1, 4   # extract seconds (0000 0000 1111 0000)	
-	    and     t1, a1, t1  
+	    slli    t1, t1, 4   	
+	    and     t1, a1, t1 
 	    srli    a0, t1, 4   
 	    jal     hex2asc     # Convert to ASCII
-	    sb      a0, 3(sp)   # Store ASCII character next in the string
+	    sb      a0, 3(sp)   # Store ASCII character in the string
 	    
-	    andi    a0, a1, 0x0F  # Mask to get units place (0000 0000 0000 1111)
+	    andi    a0, a1, 0x0F  # Mask to get units place
 	    jal     hex2asc     # Convert to ASCII
 	    sb      a0, 4(sp)   # Store ASCII character in the string
 	    
 	    # Store null terminator
-	    li      a0, 0x00    # ASCII NULL
+	    li      a0, 0x00    # ASCII NUL
 	    sb      a0, 5(sp)   # Store null terminator
 	    
-	    lw      ra, 8(sp)	# load return adress and restore stack pointer
+	    lw      ra, 8(sp)
 	   
 	    jr      ra
 	
@@ -206,19 +206,19 @@
 	hexasc:
 	
 	    #apply a mask to remove the 4 most signifigant bits
-	    li    	t2, 0xF		# 1111 in binary
+	    li    	t2, 0xF
 	    and   	a0, a0, t2
 	
 	
 	    li 		t0, 10               
-	    blt 	a0, t0, convert_digit	# if number is less than 10 it's a digit char
+	    blt 	a0, t0, convert_digit
 	
-	    addi 	a0, a0, 55     # add 55 for correct ascii if it's a letter    
-	    andi    	a0, a0, 0x7F   # Ensure only 7 bits are set, clear upper bits (01111111)
+	    addi 	a0, a0, 55        
+	    andi    	a0, a0, 0x7F   # Ensure only 7 bits are set, clear upper bits
 	    jr 		ra                  
 	
 	convert_digit:
-	    addi 	a0, a0, 48     # add 48 if if it's a digit    
+	    addi 	a0, a0, 48         
 	    andi    	a0, a0, 0x7F   # Ensure only 7 bits are set, clear upper bits
 	    jr 		ra   
 	

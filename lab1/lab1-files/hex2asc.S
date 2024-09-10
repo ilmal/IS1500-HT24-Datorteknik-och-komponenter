@@ -7,6 +7,7 @@
 
 hex2asc:
 	li	a0, 17		# test number (from 0 to 15)
+				# 17 in decimal = 0001 0001 in hexadecimal 
 	
 	addi    sp,sp,-4	# move down stackpointer
 	sw      ra,0(sp)	#store return adress
@@ -32,7 +33,7 @@ hexasc:
 
     li 		t0, 10       		# load 10 into t0        
     blt 	a0, t0, convert_digit	# if a0 is less than t0, it should convert to a digit 0-9
-
+					# taken branch
     addi 	a0, a0, 55     # If a0 should be a letter, add 55 to retrieve correct ascii  
     andi    	a0, a0, 0x7F   # Ensure only 7 bits are set, clear upper bits
     jr 		ra                  

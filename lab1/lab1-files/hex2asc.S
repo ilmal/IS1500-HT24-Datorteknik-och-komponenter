@@ -6,7 +6,7 @@
 	.globl hex2asc
 
 hex2asc:
-	li	a0, 17		# test number (from 0 to 15)
+	li	a0, 3		# test number (from 0 to 15)
 				# 17 in decimal = 0001 0001 in hexadecimal 
 	
 	addi    sp,sp,-4	# move down stackpointer

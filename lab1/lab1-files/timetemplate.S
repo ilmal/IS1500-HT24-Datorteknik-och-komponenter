@@ -45,7 +45,7 @@
 		jal     display_string	# call display_string func
 		
 		# wait a little
-		li	a0, 10 		# ms (5000 ms = 5s)
+		li	a0, -1 		# ms (5000 ms = 5s)
 		jal	delay		# call delay func
 		
 		# call tick
@@ -65,30 +65,14 @@
 	
 	
 	# Function for displaying a string with a newline at the end	
-	display_string:	
-		li a7,4		# prints out string from a0, timstr
-		ecall
-		
-		li a0, 10	# prints out a new line
-		li a7,11
-		ecall
-		
-		lb a0, 0(sp)	# Load the byte at address 0(sp) into a0 (first char).
-		ecall		# print out the character
-		lb a0, 1(sp)	
-		ecall
-		lb a0, 2(sp)
-		ecall
-		lb a0, 3(sp)
-		ecall
-		lb a0, 4(sp)
-		ecall
-		lb a0, 5(sp)
-		ecall
-		
-		addi    sp, sp, 12	# restore stack pointer
-		
-		jr ra
+	display_string:
+	        li a7,4
+	        ecall
+	        li a0, 10
+	        li a7,11
+	        ecall
+	        jr ra
+
 		
 			
 	# tick: update time pointed to by $a0
@@ -134,21 +118,26 @@
 	#########################################################
 	
 	delay:
-		li t0, 	125		# random test number
+		li t0, 	15000		# random test number
 		mul t1, t0, a0		# multiply to get total amount of cycles
 		li t0, 0		# set t0 to 0 to count loop
 		
 		loop: 
 			addi t0, t0, 1		# add 1 to t0 loop counter
-			ble t0, t1, loop	# keep looping until t0 equals t1	
+			blt t0, t1, loop	# keep looping until t0 equals t1	
 		jr ra			# return
 		
 	
 	time2string:
-	    addi    sp, sp, -4		# adjust stack pointer 
-	    sw      ra, 0(sp)		# save return adress
+	    addi    sp, sp, -12		# adjust stack pointer 
+	    sw      ra, 8(sp)		# save return adress
 	    
-	    addi    sp, sp, -8		# move stack pointer 8 pos. down
+	    sw 		s0, 4(sp)		# save s0 which is caller saved
+	   
+	    sw		s1, 0(sp)		# save s1 which is caller saved
+
+	    add 	s0, a0, zero	# save a0 to s0
+		add 	s1, sp, zero	# save sp to s1
 	    
 	    
 	    # Extract minutes (upper 8 bits) and convert to ASCII'
@@ -157,38 +146,57 @@
 	    and     t1, a1, t1  	# Mask to get tens place (only 1 and 1 equals T for and-operation)
 	    srli    a0, t1, 12   # Shift right to get digit (0000 0000 0000 xxxx)
 	    jal     hex2asc     # Convert to ASCII character
-	    sb      a0, 0(sp)   # Store ASCII character in the string 
+	    sb      a0, 0(s0)   # Store ASCII character returned from hex2asc in the string stored in s0
 	    
 	    li      t1, 0xF  		# Mask to get units place
 	    slli    t1, t1, 8   	# Extract minutes (0000 1111 0000 0000)
 	    and     t1, a1, t1 	# Mask to get units place
 	    srli    a0, t1, 8   # Shift right to get digit
 	    jal     hex2asc     # Convert to ASCII
-	    sb      a0, 1(sp)   # Store ASCII character next in the string
+	    sb      a0, 1(s0)   # Store ASCII character next in the string
 	    
 	    # Store colon character
 	    li      a0, 0x3A    # ASCII for ':'
-	    sb      a0, 2(sp)   # Store next in the string
+	    sb      a0, 2(s0)   # Store next in the string
 	    
 	    li      t1, 0xF  		
 	    slli    t1, t1, 4   # extract seconds (0000 0000 1111 0000)	
 	    and     t1, a1, t1  
 	    srli    a0, t1, 4   
 	    jal     hex2asc     # Convert to ASCII
-	    sb      a0, 3(sp)   # Store ASCII character next in the string
+	    sb      a0, 3(s0)   # Store ASCII character next in the string
 	    
 	    andi    a0, a1, 0x0F  # Mask to get units place (0000 0000 0000 1111)
 	    jal     hex2asc     # Convert to ASCII
-	    sb      a0, 4(sp)   # Store ASCII character in the string
+	    sb      a0, 4(s0)   # Store ASCII character in the string
 	    
-	    # Store null terminator
+	    #surprise assignment 1503 - add X to whole minutes
+	    andi 	a0, a1, 0xFF # Mask for 8 lsb (0000 0000 1111 1111)
+	    beqz 	a0, addx	 # Go to addx func if seconds are 00
+	   
+	    # Store null terminator if seconds not equal 00
 	    li      a0, 0x00    # ASCII NULL
-	    sb      a0, 5(sp)   # Store null terminator
+	    sb      a0, 5(s0)   # Store null terminator
 	    
+	    skip:
+	    
+	    add 	a0, s0, zero	# restore a0 from s0 (address to the string memory)
+	   	add		sp, s1, zero	# restore sp
+	    lw		s1, 0(sp)
+	    lw		s0, 4(sp)   # restore s0
 	    lw      ra, 8(sp)	# load return adress and restore stack pointer
 	   
 	    jr      ra
 	
+	addx:
+		li      a0, 0x58    # ASCII for 'X'
+	    sb		a0, 5(s0)	# store x to string
+	    
+	   	# Store null terminator
+	    li      a0, 0x00    # ASCII NULL
+	    sb      a0, 6(s0)   # Store null terminator
+	    
+	    j skip # return to time2string skip part and store stuff
 	
 	hex2asc:
 		addi    sp,sp,-4

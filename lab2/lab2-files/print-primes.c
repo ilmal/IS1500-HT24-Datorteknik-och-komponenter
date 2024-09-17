@@ -59,9 +59,9 @@ int main(int argc, char *argv[]){
     {
         print_primes(atoi(argv[1]));
     }
-  else
+    else
     printf("Please state an integer number.\n");
-  return 0;
+    return 0;
 }
 
  

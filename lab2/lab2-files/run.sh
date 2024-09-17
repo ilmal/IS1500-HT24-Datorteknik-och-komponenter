@@ -1,2 +1,2 @@
-gcc prime.c
+gcc print-primes.c
 ./a.out

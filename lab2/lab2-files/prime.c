@@ -16,6 +16,7 @@ int is_prime(int n){
     }
     return 1;
 }
+
 int main(void){
   printf("%d\n", is_prime(11));  // 11 is a prime.      Should print 1.
   printf("%d\n", is_prime(383)); // 383 is a prime.     Should print 1.

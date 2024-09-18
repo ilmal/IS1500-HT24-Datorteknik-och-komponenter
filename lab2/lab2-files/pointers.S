@@ -51,14 +51,14 @@ stop:	j	stop
 # function work()
 work:
 	PUSH	ra
-	la 	a0,text1
-	la	a1,list1
-	la	a2,counter
-	jal	copycodes
+	la 	a0,text1 # load phrase 1
+	la	a1,list1 # load memory location 1 
+	la	a2,counter # counts the amount of characters in total
+	jal	copycodes 
 	
-	la 	a0,text2
-	la	a1,list2
-	la	a2,counter
+	la 	a0,text2 # load phrase 2 
+	la	a1,list2 # load memory location 2
+	la	a2,counter # counts the amount of characters in total
 	jal	copycodes
 	POP	ra
 	jr	ra
@@ -67,19 +67,19 @@ work:
 # function copycodes()
 copycodes:
 loop:
-	lb	t0,0(a0)	
-	beqz	t0,done
-	sw	t0,0(a1)
+	lb	t0,0(a0)	 # load first character from phrase
+	beqz	t0,done	 # if the character is "zero" == end of phrase => jump to end 
+	sw	t0,0(a1) 	 # store the first character to memory  
 
-	addi	a0,a0,1
-	addi	a1,a1,4
+	addi	a0,a0,1  # add one to the character index to move on to the next character in word 
+	addi	a1,a1,4  # move stack by 4 to make space for next store of character in memory
 	
-	lw	t1,0(a2)
-	addi	t1,t1,1
-	sw	t1,0(a2)
+	lw	t1,0(a2) 	 # load the counter
+	addi	t1,t1,1  # add one to the counter (the counter that counts the total number of characters)
+	sw	t1,0(a2) 	 # store the counter
 	j	loop
 done:
-	jr	ra
+	jr	ra 
 		
 
 

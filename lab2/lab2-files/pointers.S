@@ -67,7 +67,7 @@ work:
 # function copycodes()
 copycodes:
 loop:
-	lb	t0,0(a0)	 # load first character from phrase
+	lb	t0,0(a0)	 # load a character from phrase
 	beqz	t0,done	 # if the character is "zero" == end of phrase => jump to end 
 	sw	t0,0(a1) 	 # store the first character to memory  
 

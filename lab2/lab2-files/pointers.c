@@ -4,10 +4,12 @@
 char* text1 = "This is a string.";
 char* text2 = "Yet another thing.";
 
+// lagt till
 int list1[20];  // 80 bytes in total, equivalent to 20 integers (4 bytes each)
 int list2[20];
 int counter = 0;
 
+// lagt till
 void copycodes(const char* src, int* dst, int* count) {
     while (*src != '\0') {
         *dst = (int)(*src);  // store the ASCII value of the character
@@ -18,6 +20,7 @@ void copycodes(const char* src, int* dst, int* count) {
     }
 }
 
+// lagt till
 void work(void) {
     copycodes(text1, list1, &counter);
     copycodes(text2, list2, &counter);

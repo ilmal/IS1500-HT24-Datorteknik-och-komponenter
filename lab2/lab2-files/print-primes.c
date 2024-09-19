@@ -14,10 +14,23 @@
 int is_prime(int n){
     // try dividing with numbers up to square root of n
     for(int i = 2; i*i <= n; i++){
-        if(n % i == 0)
+        // return false(0) if inserted number is divisible with i
+        if(n % i == 0) 
             return 0;
     }
     return 1;
+}
+
+// prints out n and puts them in columns if called several times
+void print_numbers(int n) {
+    static int count = 0; // counter to check amount of numbers printed
+    printf("%10d ", n); // print number
+    count++; // increment counter each time a number is printed
+    
+    // If count is divisible with amount of columns, print newline
+    if (count % COLUMNS == 0){
+        printf("\n");
+    }
 }
 
 void print_primes(int n){
@@ -25,30 +38,13 @@ void print_primes(int n){
     // with the following formatting. Note that
     // the number of columns is stated in the define
     // COLUMNS
-
-    int count = 0;
+    // iterate through every number and check if it's a prime
     for (int i=2; i<n; i++){
         if (is_prime(i)){
-            count++;
-            printf("%10d ", i);
-
-            if (count % COLUMNS == 0){
-                printf("\n");
-            }
+            print_numbers(i); // call print_numbers if its a prime
         }
     }
-    printf("\n");
-
-    // printf("%10d ", n);
-    // printf("%10d ", n);
-    // printf("%10d ", n);
-    // printf("%10d ", n);
-    // printf("%10d ", n);
-    // printf("%10d ", n);
-    // printf("\n");
-    // printf("%10d ", n);
-    // printf("%10d ", n);
-    // printf("\n");
+    printf("\n"); // newline at the end
 }
 
 // 'argc' contains the number of program arguments, and

@@ -24,6 +24,8 @@ void print_sieves(int n) {
     }
 
     int count = 0;
+    int distanceCount = 0; // surprise assignment -- counts amount of times primes have dist 8
+
     // print all numbers set to true in array
     for (i = 2; i < n; i++) {
         if(primes[i]) {
@@ -33,8 +35,16 @@ void print_sieves(int n) {
             if (count % COLUMNS == 0){
                 printf("\n");
             }
+
+            // check if dist is 8 and increment distanceCount 
+            if (primes[i] && primes[i-8] && i>=8) {
+                distanceCount++;
+            }
         }
     }
+    printf("\n");
+    // print out amount of times dist is 8
+    printf("Amount times there is a distance of 8 between two primes: %10d", distanceCount);
     printf("\n");
 }
 

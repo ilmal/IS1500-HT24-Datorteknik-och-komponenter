@@ -13,16 +13,16 @@ int counter = 0;
 void copycodes(const char* src, int* dst, int* count) {
     while (*src != '\0') {
         *dst = (int)(*src);  // store the ASCII value of the character
-        src++;  // move to the next character in the source string
-        dst++;  // move to the next integer in the destination list
+        src++;  // move the pointer to the next character in the source string
+        dst++;  // move the pointer to the next integer in the destination list
         
-        (*count)++;  // increment the counter
+        (*count)++;  // increment the counter value
     }
 }
 
 // lagt till
 void work(void) {
-    copycodes(text1, list1, &counter);
+    copycodes(text1, list1, &counter); // calls copycodes with pointer text1, list1 and memory adress to counter
     copycodes(text2, list2, &counter);
 }
 

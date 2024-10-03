@@ -99,13 +99,7 @@ int decimal_to_hexdigit(int decimal_value) {
 
 /* Below is the function that will be called when an interrupt is triggered. */
 void handle_interrupt(unsigned cause) 
-{
-  print("Interrupt triggered\n");
-  print("Cause: ");
-  print_dec(cause);
-  print("\n");
-  return;
-}
+{}
 
 /* Add your code here for initializing interrupts. */
 void labinit(void)

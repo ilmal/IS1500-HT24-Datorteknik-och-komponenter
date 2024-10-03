@@ -19,9 +19,10 @@ char textstring[] = "text, more text, and even more text!";
 volatile int* led_start = (volatile int*) 0x04000000;
 
 // Assignment 2 Timers
-volatile int* timer_start = (volatile int*)0x04000020; // Address for the timer
+volatile int* timer_status = (volatile int*)0x04000020; // Address for the timer
 volatile int* timer_control = (volatile int*)0x04000024; // Control register
-volatile int* timer_event_flag = (volatile int*)0x04000028; // Event flag register
+volatile int* timer_periodl = (volatile int*)0x04000028; // Event flag register
+volatile int* timer_periodh = (volatile int*)0x0400002C; // periodh address
 
 // Global counter for timeouts
 volatile int timeoutcount = 0;
@@ -107,20 +108,18 @@ int decimal_to_hexdigit(int decimal_value) {
 
 /* Below is the function that will be called when an interrupt is triggered. */
 void handle_interrupt(unsigned cause) 
-{
-  print("Interrupt triggered\n");
-  print("Cause: ");
-  print_dec(cause);
-  print("\n");
-  return;
-}
+{}
 
 /* Add your code here for initializing interrupts. */
 void labinit(void)
 {
-  *timer_start = 3000000; // Load the timer with the count for 100 ms (30 MHz / 10 = 3,000,000)
-  *timer_control = 0x2; // Enable the timer
-}
+  // Load the timer with the count for 100 ms (30 MHz / 10 = 3,000,000)
+  *timer_periodl = 0x06C0; // Lower 16 bits of 3000000
+  *timer_periodh = 0x002D; // Upper 16 bits of 3000000
+
+  *timer_control = 0x6; // Enable the timer -- 0x6 = 110 in binary
+}        // store each digit of the time in a variable
+
 
 
 /* Your code goes into main as well as any needed functions. */
@@ -145,20 +144,20 @@ int main() {
   // Enter a forever loop
   while (1) {
     // Check if the timer has timed out
-    if (*timer_event_flag & 0x1) { // Check if the event flag indicates a timeout
-        *timer_event_flag = 0x1; // Reset the event flag
-        timeoutcount++; // Increment timeout count
 
-        // Update time and display only once every 10 timeouts
-        if (timeoutcount >= 10) {
-            timeoutcount = 0; // Reset the timeout count
+    if (*timer_status & 0x1) { // Check if the event flag indicates a timeout
+      *timer_status = 0x0; // Reset the event flag
+      timeoutcount++; // Increment timeout count
+
+      // Update time and display only once every 10 timeouts
+      if (timeoutcount >= 10) {
+        timeoutcount = 0; // Reset the timeout count
 
         time2string( textstring, mytime ); // Converts mytime to string
-        display_string( textstring ); //Print out the string 'textstring'
-        delay( 1000 );          // Delays 1 sec (adjust this value)
+        // display_string( textstring ); //Print out the string 'textstring'
+        //delay( 1000 );          // Delays 1 sec (adjust this value)
         tick( &mytime );     // Ticks the clock once'
 
-        // store each digit of the time in a variable
         volatile int one_second = mytime & 0x000F;  // use 1111 hex to mask out 4 lsb which is the second
         volatile int ten_second = (mytime & 0x00F0) >> 4; // mask out ten sec digit and shift to the 4lsb to retrieve value
         volatile int one_minute = (mytime & 0x0F00) >> 8; // mask out one minute digit and shift to the 4lsb to retrieve value

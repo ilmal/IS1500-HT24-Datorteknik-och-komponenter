@@ -16,9 +16,9 @@ extern int nextprime( int );
 
 int mytime = 0x5957; // start time (00:59:57)
 char textstring[] = "text, more text, and even more text!";
-volatile int* led_start = (volatile int*) 0x04000000;
+volatile int* led_start = (volatile int*) 0x04000000; // pointer to memory address for leds
 
-// Assignment 2 Timers
+// Assignment 2 -- Timers
 volatile int* timer_status = (volatile int*)0x04000020; // Address for the timer
 volatile int* timer_control = (volatile int*)0x04000024; // Control register
 volatile int* timer_periodl = (volatile int*)0x04000028; // Event flag register
@@ -110,17 +110,16 @@ int decimal_to_hexdigit(int decimal_value) {
 void handle_interrupt(unsigned cause) 
 {}
 
-/* Add your code here for initializing interrupts. */
+/* Assignment 2b -- Initialize timer */
 void labinit(void)
 {
   // Load the timer with the count for 100 ms (30 MHz / 10 = 3,000,000)
-  *timer_periodl = 0x06C0; // Lower 16 bits of 3000000
-  *timer_periodh = 0x002D; // Upper 16 bits of 3000000
+  *timer_periodl = 0x06C0; // Lower 16 bits of 3000000 = 0x2DC6C0 in registry periodl
+  *timer_periodh = 0x002D; // Upper 16 bits of 3000000 = 0x2DC6C0 in registry periodh
 
+  // bit 3 in timer control starts timer and bit 2 enables CONT which makes the counter repeat after reaching 0
   *timer_control = 0x6; // Enable the timer -- 0x6 = 110 in binary
-}        // store each digit of the time in a variable
-
-
+}
 
 /* Your code goes into main as well as any needed functions. */
 int main() {
@@ -144,20 +143,21 @@ int main() {
   // Enter a forever loop
   while (1) {
     // Check if the timer has timed out
+    // first bit in timer status indicates timeout (TO)
+    if (*timer_status & 0x1) { // Check if the event flag indicates a timeout (is set to 1)
+      *timer_status = 0x0; // write 0 to reset TO bit
+      timeoutcount++; // Increment timeout count to track amount of timeouts
 
-    if (*timer_status & 0x1) { // Check if the event flag indicates a timeout
-      *timer_status = 0x0; // Reset the event flag
-      timeoutcount++; // Increment timeout count
-
-      // Update time and display only once every 10 timeouts
+      // Update time and display only once every 10 timeouts (10 timeouts = 1 sec)
       if (timeoutcount >= 10) {
         timeoutcount = 0; // Reset the timeout count
 
         time2string( textstring, mytime ); // Converts mytime to string
         // display_string( textstring ); //Print out the string 'textstring'
         //delay( 1000 );          // Delays 1 sec (adjust this value)
-        tick( &mytime );     // Ticks the clock once'
+        tick( &mytime );     // Ticks the clock once
 
+        // variables that retrieve time values from mytime
         volatile int one_second = mytime & 0x000F;  // use 1111 hex to mask out 4 lsb which is the second
         volatile int ten_second = (mytime & 0x00F0) >> 4; // mask out ten sec digit and shift to the 4lsb to retrieve value
         volatile int one_minute = (mytime & 0x0F00) >> 8; // mask out one minute digit and shift to the 4lsb to retrieve value
@@ -165,16 +165,21 @@ int main() {
         volatile int one_hour = (mytime & 0xF0000) >> 16;  // mask out one hour digit and shift to the 4lsb to retrieve value
         volatile int ten_hour = (mytime & 0xF00000) >> 20;  // mask out ten hour digit and shift to the 4lsb to retrieve value
 
+        // adding the values to variables that count hours, mins, and secs
         hours = ten_hour * 10 + one_hour;
         minutes = ten_minute * 10 + one_minute;
         seconds = ten_second * 10 + one_second;
 
+        // variables storing state of switches and button
         volatile int sw_status = get_sw();
         volatile int btn_status = get_btn();
+
+        // if button-click is detected
         if (btn_status){
           volatile int mod_switches = sw_status >> 8 & 0x3;  // shift 8 bits to the right and mask 0x3 = 11 in binary to get the two switches
           volatile int sw_values = sw_status & 0x3F; // mask 0x3F = 111111 to get the first 6 switches
 
+          // adjust hours, mins or secs depending on mod_switches
           switch (mod_switches) {
             case 1: seconds = sw_values; break;
             case 2: minutes = sw_values; break;
@@ -182,13 +187,13 @@ int main() {
             default: break;
           }
           
-          print("MOD SWITCHES: ");
-          print_dec(mod_switches);
-          print("\n");
+          // print("MOD SWITCHES: ");
+          // print_dec(mod_switches);
+          // print("\n");
 
-          print("UPDATE VALUE: ");
-          print_dec(sw_values); 
-          print("\n");
+          // print("UPDATE VALUE: ");
+          // print_dec(sw_values); 
+          // print("\n");
 
         }
 

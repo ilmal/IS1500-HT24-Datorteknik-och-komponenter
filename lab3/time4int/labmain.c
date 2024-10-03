@@ -13,12 +13,12 @@ extern void time2string(char*,int);
 extern void tick(int*);
 extern void delay(int);
 extern int nextprime( int );
-extern void enable_interrupt(void);
+extern void enable_interrupt(void); // access to enable_interrupt func from boot.S
 
 int mytime = 0x5957; // start time (00:59:57)
 char textstring[] = "text, more text, and even more text!";
 volatile int* led_start = (volatile int*) 0x04000000;
-int prime = 1234567;
+int prime = 1234567;    // assignment 3b -- adding int prime
 
 // Assignment 2 Timers
 volatile int* timer_status = (volatile int*)0x04000020; // Address for the timer
@@ -108,6 +108,7 @@ int decimal_to_hexdigit(int decimal_value) {
     return tens | ones;                    // OR operation to combine
 }
 
+// func to display the time every time there's a timer interrupt
 void display_time(void) {
   volatile int one_second = mytime & 0x000F;  // use 1111 hex to mask out 4 lsb which is the second
   volatile int ten_second = (mytime & 0x00F0) >> 4; // mask out ten sec digit and shift to the 4lsb to retrieve value
@@ -126,18 +127,18 @@ void display_time(void) {
 
 }
 
-/* Below is the function that will be called when an interrupt is triggered. */
+/* assignment 3d/e -- adjusting handle_interrupt */
 void handle_interrupt ( unsigned cause ) {
   if (*timer_status & 0x1) { // Check if interrupt is from the timer
-      *timer_status = *timer_status & ~0x1; // Clear the interrupt flag
+      *timer_status = *timer_status & ~0x1; // Clear the interrupt flag (~0x1 is inverted and clears only 1lsb)
       timeoutcount++; // Increment the timeout counter
 
-      // Only execute this block every 10 interrupts
+      // Assignment 3f -- clear timeoutcount every 10 timouts since that's a second
       if (timeoutcount == 10) {
           timeoutcount = 0; // Reset counter after 10 interrupts
 
-        tick( &mytime );     // Ticks the clock once'
-        display_time();
+        tick( &mytime );     // Ticks the clock once
+        display_time();      // calls for func to display time
       }
   }
 }
@@ -146,18 +147,19 @@ void handle_interrupt ( unsigned cause ) {
 void labinit(void)
 {
   // Load the timer with the count for 100 ms (30 MHz / 10 = 3,000,000)
-  *timer_periodl = 0x06C0; // Lower 16 bits of 3000000
+  *timer_periodl = 0x06C0; // Lower 16 bits of 3000000 = 0x2DC6C0
   *timer_periodh = 0x002D; // Upper 16 bits of 3000000
 
   *timer_control = 0b111; // Enable the timer
 
+  // Assignment 3h -- enable interrupts  
   print("Enabling interrupts\n");
   enable_interrupt();      // Enable global interrupts and timer interrupts
   print("Interrupts enabled\n");
 }
 
 
-/* Your code goes into main as well as any needed functions. */
+/* assignment 3c -- adjusting main-func */
 int main ( void ) {
   labinit();
   // while (1) {

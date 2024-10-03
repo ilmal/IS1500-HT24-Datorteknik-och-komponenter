@@ -127,8 +127,9 @@ _start:
 	
 loop:	j loop
 
+// assignment 3g -- enabling interrupts from timer
 enable_interrupt:
 
-	csrsi mstatus, 3			// Enable global interrupts (set bits 0 and 1 in mstatus).	
-	csrsi mie, 16				// Enable machine timer interrupt (set bit 16 in mie).
+	csrsi mstatus, 3		# enable global interrupts by setting bit nr 3	
+	csrsi mie, 16			# Enable machine timer interrupt (set bit nr16 in mie -> custom).
     jr ra                   # Return from function

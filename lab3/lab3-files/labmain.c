@@ -16,13 +16,13 @@ extern int nextprime( int );
 
 int mytime = 0x5957; // start time (00:59:57)
 char textstring[] = "text, more text, and even more text!";
-volatile int* led_start = (volatile int*) 0x04000000;
+volatile int* led_start = (volatile int*) 0x04000000;     // pointer to memory address for leds
 
 // Assignment 1g -- Checks if the button is pressed on the board
 int get_btn(void){
   volatile int* btn = (volatile int*) 0x040000d0;  // set the address of the button on the board
   int btn_value = *btn;  // set btn_value to the value of the button at address btn
-  return btn_value & 0x1;  // perform and operation to check one lsb to see button status
+  return btn_value & 0x1;  // perform and operation to check 1 lsb to see button status
 }
 
 // Assignment 1f -- checks the status of toggle switches on the board 
@@ -41,7 +41,7 @@ void set_displays(int display_number, int value){
   }
 
   int display_value = 0;  // value to set on each display to represent a specific number
-  volatile int offset = 0x10 * display_number; // offset to set which one of the displays to use
+  volatile int offset = 0x10 * display_number; // offset to choose which one of the displays on the board to use
 
   // switch statement to set chosen number on display using binary (0 is on, 1 is off)
   switch (value)
@@ -90,7 +90,7 @@ void set_leds(int led_mask) {
   *led_start = led_mask;  // set the value of led_start to led_mask (sequence of 1s and 0s)
 }
 
-// Helper function to convert a decimal number to the same digits in hex (ex: 13 -> 0x13)
+// Helper function to convert a decimal number to the same digits in hex (ex: dec 13 -> 0x13)
 int decimal_to_hexdigit(int decimal_value) {
     int tens = (decimal_value / 10) << 4;  // Tens place (shifted to upper nibble)
     int ones = decimal_value % 10;         // Ones place (lower nibble)
@@ -113,8 +113,8 @@ int main() {
 
   int counter = 0; // variable to count seconds passed since start of loop in order to break at 15 secs
   volatile int hours = 0;  // variable to count ammount of hours passed 
-  volatile int minutes = 0;
-  volatile int seconds = 0;
+  volatile int minutes = 0; // variable to count amount of mins passed
+  volatile int seconds = 0; // variable to count amount of secs passed
 
   // set all displays to 0 so it doesnt display 8's in the beginning
   set_displays(0, 0);
@@ -140,30 +140,36 @@ int main() {
     volatile int one_hour = (mytime & 0xF0000) >> 16;  // mask out one hour digit and shift to the 4lsb to retrieve value
     volatile int ten_hour = (mytime & 0xF00000) >> 20;  // mask out ten hour digit and shift to the 4lsb to retrieve value
 
-    hours = ten_hour * 10 + one_hour;
-    minutes = ten_minute * 10 + one_minute;
-    seconds = ten_second * 10 + one_second;
+    hours = ten_hour * 10 + one_hour;   // calculate amount of hours from data retrieved from mytime
+    minutes = ten_minute * 10 + one_minute; // calculate amount of mmins
+    seconds = ten_second * 10 + one_second; // calculate amount of secs
 
-    volatile int sw_status = get_sw();
-    volatile int btn_status = get_btn();
+    volatile int sw_status = get_sw();  // variable storing status of switches using get_sw()
+    volatile int btn_status = get_btn();  // variable storing button status using get_btn()
+    
+    // if button-click detected
     if (btn_status){
+      // retrieve status of the two leftmost switches in order to choose unit to change
       volatile int mod_switches = sw_status >> 8 & 0x3;  // shift 8 bits to the right and mask 0x3 = 11 in binary to get the two switches
+      
+      // retrieve status of 6 rightmost switches in order to read what value to set unit to
       volatile int sw_values = sw_status & 0x3F; // mask 0x3F = 111111 to get the first 6 switches
 
+      // depending on values of mod_switches
       switch (mod_switches) {
-        case 1: seconds = sw_values; break;
-        case 2: minutes = sw_values; break;
-        case 3: hours = sw_values; break;
+        case 1: seconds = sw_values; break; // when switches are 01, change seconds to value at 6 rightmost switches
+        case 2: minutes = sw_values; break; // when switches are 10, change minutes
+        case 3: hours = sw_values; break; // when switches are 11, change hours
         default: break;
       }
       
-      print("MOD SWITCHES: ");
-      print_dec(mod_switches);
-      print("\n");
+      // print("MOD SWITCHES: ");
+      // print_dec(mod_switches);
+      // print("\n");
 
-      print("UPDATE VALUE: ");
-      print_dec(sw_values); 
-      print("\n");
+      // print("UPDATE VALUE: ");
+      // print_dec(sw_values); 
+      // print("\n");
 
     }
 
@@ -189,7 +195,7 @@ int main() {
     print("\n");
 
     // set each display to the corresponding digit variable 
-    set_displays(0, seconds % 10);
+    set_displays(0, seconds % 10); 
     set_displays(1, seconds / 10);
     set_displays(2, minutes % 10);
     set_displays(3, minutes / 10);
@@ -199,6 +205,7 @@ int main() {
     counter++; // increment the counter each iteration of while-loop to count seconds
     set_leds(counter); // set the leds to the counter value in order to count binary
 
+    // setting mytime to edited time 
     mytime = (hours / 10 << 20) | (hours % 10 << 16) | (minutes / 10 << 12) | (minutes % 10 << 8) | (seconds / 10 << 4) | seconds % 10;
 
     // check if the board has counted leds for 15 secs

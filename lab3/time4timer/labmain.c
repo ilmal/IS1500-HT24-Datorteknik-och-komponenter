@@ -113,9 +113,9 @@ void handle_interrupt(unsigned cause)
 /* Assignment 2b -- Initialize timer */
 void labinit(void)
 {
-  // Load the timer with the count for 100 ms (30 MHz / 10 = 3,000,000)
-  *timer_periodl = 0x06C0; // Lower 16 bits of 3000000 = 0x2DC6C0 in registry periodl
-  *timer_periodh = 0x002D; // Upper 16 bits of 3000000 = 0x2DC6C0 in registry periodh
+  // Load the timer with the count for 100 ms (30 MHz / 10 = 3,000,000) => (30 000 000 / 10 = 3 000 000)
+  *timer_periodl = 0xC6C0; // Lower 16 bits of 3 000 000 = 0x2DC6C0 in registry periodl
+  *timer_periodh = 0x002D; // Upper 16 bits of 3 000 000 = 0x2DC6C0 in registry periodh
 
   // bit 3 in timer control starts timer and bit 2 enables CONT which makes the counter repeat after reaching 0
   *timer_control = 0x6; // Enable the timer -- 0x6 = 110 in binary
@@ -142,6 +142,53 @@ int main() {
 
   // Enter a forever loop
   while (1) {
+    // variables that retrieve time values from mytime
+    volatile int one_second = mytime & 0x000F;  // use 1111 hex to mask out 4 lsb which is the second
+    volatile int ten_second = (mytime & 0x00F0) >> 4; // mask out ten sec digit and shift to the 4lsb to retrieve value
+    volatile int one_minute = (mytime & 0x0F00) >> 8; // mask out one minute digit and shift to the 4lsb to retrieve value
+    volatile int ten_minute = (mytime & 0xF000) >> 12;  // mask out ten minute digit and shift to the 4lsb to retrieve value
+    volatile int one_hour = (mytime & 0xF0000) >> 16;  // mask out one hour digit and shift to the 4lsb to retrieve value
+    volatile int ten_hour = (mytime & 0xF00000) >> 20;  // mask out ten hour digit and shift to the 4lsb to retrieve value
+
+    // adding the values to variables that count hours, mins, and secs
+    hours = ten_hour * 10 + one_hour;
+    minutes = ten_minute * 10 + one_minute;
+    seconds = ten_second * 10 + one_second;
+
+    // variables storing state of switches and button
+    volatile int sw_status = get_sw();
+    volatile int btn_status = get_btn();
+
+    // if button-click is detected
+    if (btn_status){
+      volatile int mod_switches = sw_status >> 8 & 0x3;  // shift 8 bits to the right and mask 0x3 = 11 in binary to get the two switches
+      volatile int sw_values = sw_status & 0x3F; // mask 0x3F = 111111 to get the first 6 switches
+
+      volatile int exit_switch = sw_status >> 7 & 0x1; // shift 7 bits to the right and mask 0x1 = 1 in binary to get the SW8 switch
+
+      if (exit_switch) {
+        break; // break the loop if SW8 is pressed
+      }
+
+      // adjust hours, mins or secs depending on mod_switches
+      switch (mod_switches) {
+        case 1: seconds = sw_values; break;
+        case 2: minutes = sw_values; break;
+        case 3: hours = sw_values; break;
+        default: break;
+      }
+
+      // set each display to the corresponding digit variable 
+      set_displays(0, seconds % 10);
+      set_displays(1, seconds / 10);
+      set_displays(2, minutes % 10);
+      set_displays(3, minutes / 10);
+      set_displays(4, hours % 10);
+      set_displays(5, hours / 10);
+
+      mytime = (hours / 10 << 20) | (hours % 10 << 16) | (minutes / 10 << 12) | (minutes % 10 << 8) | (seconds / 10 << 4) | seconds % 10;
+    }
+
     // Check if the timer has timed out
     // first bit in timer status indicates timeout (TO)
     if (*timer_status & 0x1) { // Check if the event flag indicates a timeout (is set to 1)
@@ -152,50 +199,23 @@ int main() {
       if (timeoutcount >= 10) {
         timeoutcount = 0; // Reset the timeout count
 
-        time2string( textstring, mytime ); // Converts mytime to string
+        // time2string( textstring, mytime ); // Converts mytime to string
         // display_string( textstring ); //Print out the string 'textstring'
         //delay( 1000 );          // Delays 1 sec (adjust this value)
         tick( &mytime );     // Ticks the clock once
 
         // variables that retrieve time values from mytime
-        volatile int one_second = mytime & 0x000F;  // use 1111 hex to mask out 4 lsb which is the second
-        volatile int ten_second = (mytime & 0x00F0) >> 4; // mask out ten sec digit and shift to the 4lsb to retrieve value
-        volatile int one_minute = (mytime & 0x0F00) >> 8; // mask out one minute digit and shift to the 4lsb to retrieve value
-        volatile int ten_minute = (mytime & 0xF000) >> 12;  // mask out ten minute digit and shift to the 4lsb to retrieve value
-        volatile int one_hour = (mytime & 0xF0000) >> 16;  // mask out one hour digit and shift to the 4lsb to retrieve value
-        volatile int ten_hour = (mytime & 0xF00000) >> 20;  // mask out ten hour digit and shift to the 4lsb to retrieve value
+        one_second = mytime & 0x000F;  // use 1111 hex to mask out 4 lsb which is the second
+        ten_second = (mytime & 0x00F0) >> 4; // mask out ten sec digit and shift to the 4lsb to retrieve value
+        one_minute = (mytime & 0x0F00) >> 8; // mask out one minute digit and shift to the 4lsb to retrieve value
+        ten_minute = (mytime & 0xF000) >> 12;  // mask out ten minute digit and shift to the 4lsb to retrieve value
+        one_hour = (mytime & 0xF0000) >> 16;  // mask out one hour digit and shift to the 4lsb to retrieve value
+        ten_hour = (mytime & 0xF00000) >> 20;  // mask out ten hour digit and shift to the 4lsb to retrieve value
 
         // adding the values to variables that count hours, mins, and secs
         hours = ten_hour * 10 + one_hour;
         minutes = ten_minute * 10 + one_minute;
         seconds = ten_second * 10 + one_second;
-
-        // variables storing state of switches and button
-        volatile int sw_status = get_sw();
-        volatile int btn_status = get_btn();
-
-        // if button-click is detected
-        if (btn_status){
-          volatile int mod_switches = sw_status >> 8 & 0x3;  // shift 8 bits to the right and mask 0x3 = 11 in binary to get the two switches
-          volatile int sw_values = sw_status & 0x3F; // mask 0x3F = 111111 to get the first 6 switches
-
-          // adjust hours, mins or secs depending on mod_switches
-          switch (mod_switches) {
-            case 1: seconds = sw_values; break;
-            case 2: minutes = sw_values; break;
-            case 3: hours = sw_values; break;
-            default: break;
-          }
-          
-          // print("MOD SWITCHES: ");
-          // print_dec(mod_switches);
-          // print("\n");
-
-          // print("UPDATE VALUE: ");
-          // print_dec(sw_values); 
-          // print("\n");
-
-        }
 
         // check if seconds are over 60 and increment minutes
         if (seconds >= 60) {

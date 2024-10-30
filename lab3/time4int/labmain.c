@@ -29,9 +29,12 @@ volatile int* timer_periodh = (volatile int*)0x0400002C; // periodh address
 // Global counter for timeouts
 volatile int timeoutcount = 0;
 
+// Global pointer for btn
+volatile int* btn = (volatile int*) 0x040000d0;  // set the address of the button on the board
+
 // Assignment 1g -- Checks if the button is pressed on the board
 int get_btn(void){
-  volatile int* btn = (volatile int*) 0x040000d0;  // set the address of the button on the board
+  btn = (volatile int*) 0x040000d0;  // set the address of the button on the board
   int btn_value = *btn;  // set btn_value to the value of the button at address btn
   return btn_value & 0x1;  // perform and operation to check one lsb to see button status
 }
@@ -129,7 +132,8 @@ void display_time(void) {
 
 /* assignment 3d/e -- adjusting handle_interrupt */
 void handle_interrupt ( unsigned cause ) {
-  if (*timer_status & 0x1) { // Check if interrupt is from the timer
+
+  if (cause == 16) { // Check if interrupt is from the timer
       *timer_status = *timer_status & ~0x1; // Clear the interrupt flag (~0x1 is inverted and clears only 1lsb)
       timeoutcount++; // Increment the timeout counter
 
@@ -140,6 +144,15 @@ void handle_interrupt ( unsigned cause ) {
         tick( &mytime );     // Ticks the clock once
         display_time();      // calls for func to display time
       }
+  }
+
+  // surprise assignment -- increment 2 secs when button is pressed
+  if (cause == 18) {
+    print("Button pressed\n");
+    volatile int* edge_capture = (volatile int*) 0x040000dc;  //edge capture registry adre
+    *edge_capture = 0b0; // clear the interrupt
+    tick(&mytime);
+    display_time();
   }
 }
 
@@ -152,9 +165,13 @@ void labinit(void)
 
   *timer_control = 0b111; // Enable the timer
 
+  volatile int* interupt_mask_btn = (volatile int*) 0x040000d8; // 2 offsets * 4 = 8 
+
+  *interupt_mask_btn = 0b1; // enable interrupt for button by setting interrupt mask to 1
+
   // Assignment 3h -- enable interrupts  
   print("Enabling interrupts\n");
-  enable_interrupt();      // Enable global interrupts and timer interrupts
+  enable_interrupt();      // Enable global interrupts and timer interrupts (+ button)
   print("Interrupts enabled\n");
 }
 
@@ -162,10 +179,10 @@ void labinit(void)
 /* assignment 3c -- adjusting main-func */
 int main ( void ) {
   labinit();
-  // while (1) {
-  //   prime = nextprime( prime );
-  //   // print ("Prime: ");
-  //   // print_dec( prime );
-  //   // print("\n");
-  //   }
+  while (1) {
+    prime = nextprime( prime );
+    print ("Prime: ");
+    print_dec( prime );
+    print("\n");
+  }
 }

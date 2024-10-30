@@ -87,7 +87,7 @@ void set_displays(int display_number, int value){
 
 // Assignment 1c/1d -- Function to set the LEDs on the board 
 void set_leds(int led_mask) {
-  *led_start = led_mask;  // set the value of led_start to led_mask (sequence of 1s and 0s)
+  *led_start = 0b1111111111 & led_mask;  // set the value of led_start to led_mask (sequence of 1s and 0s)
 }
 
 // Helper function to convert a decimal number to the same digits in hex (ex: dec 13 -> 0x13)
@@ -111,7 +111,13 @@ int main() {
   // Call labinit()
   labinit();
 
-  int counter = 0; // variable to count seconds passed since start of loop in order to break at 15 secs
+  int counter = 0;
+  while (counter < 15) {
+    delay(1000); // delay 1 sec
+    counter++; // increment the counter each iteration of while-loop to count seconds
+    set_leds(counter); // set the leds to the counter value in order to count binary
+  }
+
   volatile int hours = 0;  // variable to count ammount of hours passed 
   volatile int minutes = 0; // variable to count amount of mins passed
   volatile int seconds = 0; // variable to count amount of secs passed
@@ -123,7 +129,6 @@ int main() {
   set_displays(3, 0);
   set_displays(4, 0);
   set_displays(5, 0);
-  print_dec(get_sw());
 
   // Enter a forever loop
   while (1) {
@@ -152,6 +157,12 @@ int main() {
       // retrieve status of the two leftmost switches in order to choose unit to change
       volatile int mod_switches = sw_status >> 8 & 0x3;  // shift 8 bits to the right and mask 0x3 = 11 in binary to get the two switches
       
+      volatile int exit_switch = sw_status >> 7 & 0x1; // shift 7 bits to the right and mask 0x1 = 1 in binary to get the SW8 switch
+
+      if (exit_switch) {
+        break; // break the loop if SW8 is pressed
+      }
+
       // retrieve status of 6 rightmost switches in order to read what value to set unit to
       volatile int sw_values = sw_status & 0x3F; // mask 0x3F = 111111 to get the first 6 switches
 
@@ -161,16 +172,7 @@ int main() {
         case 2: minutes = sw_values; break; // when switches are 10, change minutes
         case 3: hours = sw_values; break; // when switches are 11, change hours
         default: break;
-      }
-      
-      // print("MOD SWITCHES: ");
-      // print_dec(mod_switches);
-      // print("\n");
-
-      // print("UPDATE VALUE: ");
-      // print_dec(sw_values); 
-      // print("\n");
-
+      }      
     }
 
     // check if seconds are over 60 and increment minutes
@@ -202,16 +204,10 @@ int main() {
     set_displays(4, hours % 10);
     set_displays(5, hours / 10);
 
-    counter++; // increment the counter each iteration of while-loop to count seconds
-    set_leds(counter); // set the leds to the counter value in order to count binary
 
     // setting mytime to edited time 
     mytime = (hours / 10 << 20) | (hours % 10 << 16) | (minutes / 10 << 12) | (minutes % 10 << 8) | (seconds / 10 << 4) | seconds % 10;
 
-    // check if the board has counted leds for 15 secs
-    if (counter == 15) {
-      continue; // set to 'break' instead if it should stop at 15 secs
-    }
   }
   return 0;
 }

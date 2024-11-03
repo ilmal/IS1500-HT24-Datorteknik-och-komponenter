@@ -1,6 +1,6 @@
 .text
 
-	addi t0, zero, 2	# input: factorial of 0, 3, and 8, ... 
+	addi t0, zero, 8	# input: factorial of 0, 3, and 8, ... 
 	beq t0, zero, h_zero	# handles 0!
 	add tp, zero, t0		# stores result of n(n-1)
 	add t1, zero, zero		# set counter

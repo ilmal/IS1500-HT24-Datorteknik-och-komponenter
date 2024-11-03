@@ -1,6 +1,6 @@
 .text
 
-	addi t0, zero, 8	# input: factorial of 0, 3, and 8, ... 
+	addi t0, zero, 2	# input: factorial of 0, 3, and 8, ... 
 	beq t0, zero, handle_zero	# handles 0!
 	add tp, zero, t0		# stores result of n(n-1)
 	add t1, zero, zero		# set counter
@@ -17,8 +17,8 @@ multiply_end:
 	 add t1, zero, zero		# reset counter 
 	 addi t0, t0, -1		# remove 1 from t0 so n -> n-1
 	 beq t0, zero, factorial_end	# if t0 reach 0, end
-	 add tp, zero, t2		# set tp to current res
-	 add t2, zero, zero
+	 add tp, zero, t2		# set tp to current result to keep add
+	 add t2, zero, zero		# 
 	 beq zero, zero, multiply
 	
 factorial_end:
@@ -30,4 +30,4 @@ handle_zero:
 	beq zero, zero, stop
 
 stop:
-	j stop
+	beq zero, zero, stop

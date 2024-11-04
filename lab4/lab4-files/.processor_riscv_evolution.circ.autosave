@@ -111,6 +111,7 @@
       <circ-port dir="in" pin="140,230" x="50" y="110"/>
       <circ-port dir="in" pin="140,340" x="50" y="80"/>
       <circ-port dir="in" pin="90,160" x="90" y="60"/>
+      <circ-port dir="out" pin="660,370" x="140" y="130"/>
       <circ-port dir="out" pin="760,240" x="140" y="110"/>
       <circ-port dir="out" pin="810,170" x="140" y="120"/>
     </appear>
@@ -168,6 +169,12 @@
       <a name="in_width" val="1"/>
       <a name="out_width" val="32"/>
       <a name="type" val="zero"/>
+    </comp>
+    <comp lib="0" loc="(660,370)" name="Pin">
+      <a name="appearance" val="classic"/>
+      <a name="facing" val="west"/>
+      <a name="output" val="true"/>
+      <a name="width" val="32"/>
     </comp>
     <comp lib="0" loc="(710,130)" name="Constant">
       <a name="value" val="0x0"/>
@@ -260,8 +267,10 @@
     <wire from="(630,200)" to="(630,210)"/>
     <wire from="(630,200)" to="(660,200)"/>
     <wire from="(630,210)" to="(660,210)"/>
-    <wire from="(640,270)" to="(640,420)"/>
-    <wire from="(640,270)" to="(660,270)"/>
+    <wire from="(640,250)" to="(640,370)"/>
+    <wire from="(640,250)" to="(660,250)"/>
+    <wire from="(640,370)" to="(640,420)"/>
+    <wire from="(640,370)" to="(660,370)"/>
     <wire from="(680,280)" to="(680,310)"/>
     <wire from="(680,310)" to="(720,310)"/>
     <wire from="(700,240)" to="(740,240)"/>
@@ -514,9 +523,9 @@
     <comp lib="4" loc="(420,530)" name="ROM">
       <a name="appearance" val="logisim_evolution"/>
       <a name="contents">addr/data: 8 32
-263 263 fe000ee3 200293 2028e63 500233 333 130313
-530663 7203b3 fe000ae3 333 fff28293 28863 700233 3b3
-fc000ee3 4003b3 663 100393 263 63
+800293 2028e63 500233 333 130313 530663 7203b3 fe000ae3
+333 fff28293 28863 700233 3b3 fc000ee3 4003b3 663
+100393 263 63
 </a>
       <a name="dataWidth" val="32"/>
     </comp>

@@ -68,7 +68,7 @@ struct player {
     int positionY;
     int food;
     int oxygen;
-    int inventory[5];
+    int inventory[5];       // player can only collect upto 5 items at hand
     int water;
 };
 
@@ -78,7 +78,7 @@ enum COLLECTIBLETYPE {
     RSL_IMAGES,         // found in canyon
     ALIEN_BONES,        // found in cave
     OLD_ROVER_PARTS,    // found in wasteland (low chance)
-    ICE,                // found in 
+    ICE,                // found in somewhere
     FOOD,               // found in cafeteria
     BOTTLE_OF_WATER,    // found in cafeteria    
 };
@@ -96,21 +96,28 @@ const char* COLLECTIBLE_NAMES[] = {
 
 struct player* create_player() {
     struct player* new_player = malloc(sizeof(struct player));
+
+    // start position
     new_player->positionX = 0;
     new_player->positionY = 0;
+
+    // start health stats
     new_player->food = 100;
     new_player->oxygen = 100;
     new_player->water = 100;
-    for (int i = 0; i < 10; i++) {
+
+    // start inventory
+    for (int i = 0; i < 5; i++) {
         new_player->inventory[i] = 0;
     }
     return new_player;
 }
 
+// storage struct
 struct tile* storage(){
     struct tile* storage_tile = malloc(sizeof(struct tile));
     storage_tile->interactable = 1;
-    storage_tile->interaction_text = "You are in the storage room. You can store your science samples here.";
+    storage_tile->interaction_text = "You are in the storage room which holds your food and scientific samples - you can store your inventory here.";
     memset(storage_tile->storage, 0, sizeof(storage_tile->storage));
 
     // default items in the storage:
@@ -120,6 +127,30 @@ struct tile* storage(){
     return storage_tile;
 }
 
+// chambers struct
+struct tile* chambers() {
+    struct tile* chambers_tile = malloc(sizeof(struct tile));
+    chambers_tile->interaction_text = "You are in the personal chambers, this is the starting point.";
+    return chambers_tile;
+}
+
+// cockpit struct
+struct tile* cockpit() {
+    struct tile* cockpit_tile = malloc(sizeof(struct tile));
+    cockpit_tile->interactable = 1;
+    cockpit_tile->interaction_text = "You have entered the cockpit, you can now choose to end the game if you want.";
+    
+    return cockpit_tile;
+}
+
+// cafeteria struct
+struct tile* cafeteria() {
+    struct tile* cafeteria_tile = malloc(sizeof(struct tile));
+    cafeteria_tile->interaction_text = "You have entered the cafeteria, collect food here.";
+    cafeteria_tile->collectibles = 1;
+
+    return cafeteria_tile;
+}
 
 // Constructor function to create a new tile (ct = create_tile)
 struct tile* ct(enum TILETYPE type) {

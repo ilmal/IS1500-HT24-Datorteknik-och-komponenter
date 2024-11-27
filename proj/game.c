@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>  
 
 // Type of "room" the player can be in
 enum TILETYPE
@@ -43,35 +44,6 @@ const char* TILETYPE_NAMES[] = {
     "CANYON",
     "MOUNTAIN"
 };
-
-struct tile
-{
-    enum TILETYPE type;   
-    // interactions
-    int interactable;
-    char interaction_text;
-
-    // storage
-    enum COLLECTIBLETYPE storage[10];
-
-    // collectibles
-    int collectibles;
-
-    // stat changes
-    int drop_oxygen;
-    int drop_food;
-    int drop_water;
-};
-
-struct player {
-    int positionX;
-    int positionY;
-    int food;
-    int oxygen;
-    int inventory[5];       // player can only collect upto 5 items at hand
-    int water;
-};
-
 enum COLLECTIBLETYPE {
     TARDIGRADES,        // found in pond
     SEDIMENTARY_LAYERS, // found in crater
@@ -92,6 +64,34 @@ const char* COLLECTIBLE_NAMES[] = {
     "Ice",
     "Food",
     "Bottle of Water"
+};
+
+struct tile
+{
+    enum TILETYPE type;   
+    // interactions
+    int interactable;
+    char interaction_text;
+
+    // storage
+    enum COLLECTIBLETYPE storage[50];      // storage can store more than enough
+
+    // collectibles
+    int collectibles;
+
+    // stat changes
+    int drop_oxygen;
+    int drop_food;
+    int drop_water;
+};
+
+struct player {
+    int positionX;
+    int positionY;
+    int food;
+    int oxygen;
+    int inventory[5];       // player can only collect upto 5 items at hand
+    int water;
 };
 
 struct player* create_player() {
@@ -152,17 +152,48 @@ struct tile* cafeteria() {
     return cafeteria_tile;
 }
 
+
+
 // Constructor function to create a new tile (ct = create_tile)
 struct tile* ct(enum TILETYPE type) {
     switch (type)
     {
     case 0:
         return storage();
+    case 1:
+        return chambers();
+    case 2:
+        return cockpit();
+    case 3: 
+        return cafeteria();
+
     default:
         break;
     }
 }
 
+void add_to_inventory(struct player* player, enum COLLECTIBLETYPE item) {
+    for (int i = 0; i < 5; i++) {
+        if (player->inventory[i] == 0) {  // Check if the slot is empty
+            player->inventory[i] = item;  // Add the item to the inventory
+            printf("You have added: %s to your inventory.\n", COLLECTIBLE_NAMES[item]);
+            return;  
+        }
+    }
+    // If there is no empty slot
+    printf("Your inventory is full! Cannot add more items.\n");
+}
+
+// helper func to see storage
+void check_storage(struct player* player, struct tile* storage_tile) {
+    // printf("%s\n", storage_tile->interaction_text);
+    printf("You have stored the following items: \n");
+    for(int i = 0; i < 5; i++) {
+        if(storage_tile->storage[i] != 0) {
+            printf("%s\n", COLLECTIBLE_NAMES[storage_tile->storage[i]]);
+        }
+    }
+}
 
 int main(){
     struct tile* map[3][3] = {
@@ -175,6 +206,7 @@ int main(){
 
     printf("Welcome to the game!\n");
     printf("You are stranded on Mars and need to find a way to survive.\n");
+    // TODO: add game description text
 
     while (1) {
         printf("You are at position (%d, %d)\n", player->positionX, player->positionY);
@@ -200,21 +232,53 @@ int main(){
             int direction;
             scanf("%d", &direction);
 
-            if (direction == 1) {
+            if (direction == 1 && player->positionY > 0) {
                 player->positionY -= 1;
-            } else if (direction == 2) {
+            } else if (direction == 2 && player->positionX < 2) {
                 player->positionX += 1;
-            } else if (direction == 3) {
+            } else if (direction == 3 && player->positionY < 2) {
                 player->positionY += 1;
-            } else if (direction == 4) {
+            } else if (direction == 4 && player->positionX > 0) {
                 player->positionX -= 1;
             } else {
                 printf("Invalid direction\n");
             }
         } else if (choice == 2) {
-            printf("Interacting with the environment...\n");
+            // storage
+            if (map[player->positionY][player->positionX]->type == STORAGE) {
+                struct tile* storage_tile = map[player->positionY][player->positionX];
+                check_storage(player, storage_tile);
+            }
+            // cockpit
+            else if(map[player->positionY][player->positionX]->type == COCKPIT) {
+                char end_game;
+                printf("Do you want to end the game and return to Earth? (y/n)\n");
+                scanf("%c\n", &end_game);
+                if (end_game == 'y' || end_game == 'Y') {
+                    printf("You have chosen to end the game. Goodbye!\n");
+                    // TODO: win/lose logic
+                    break;  // Exit the while loop and end the game
+                } else {
+                    printf("Lol, you coward. Keep playing then...\n");  // change text maybe?
+                }
+            }
+            else if(map[player->positionY][player->positionX]->type == CAFETERIA) {
+                printf("Grab some food? (y/n)\n");
+                char grab_food;
+                scanf("%c\n", &grab_food);
+                if(grab_food == 'y' || grab_food == 'Y') {
+                    printf("You have grabbed one lunchbox.\n");
+
+                }
+            }
+            
         } else if (choice == 3) {
-            printf("Checking inventory...\n");
+            printf("Items in your inventory: \n");
+            for(int i = 0; i < 5; i++) {
+                if(player->inventory[i]!=0) {
+                    printf("%s\n", COLLECTIBLE_NAMES[player->inventory[i]]);
+                }
+            }
         } else if (choice == 4) {
             printf("Checking vitals...\n");
         } else if (choice == 5) {

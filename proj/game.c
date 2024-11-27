@@ -1,113 +1,125 @@
 #include <stdio.h>
-#include <string.h>
+#include <stdlib.h>
 
-#define MAX_ROOMS 5
-#define MAX_INPUT 50
+enum TYPE
+{
+    // in the rocket
+    STORAGE,
+    CHAMBERS,
+    COCKPIT,
+    CAFETERIA,
+    ENGINE_BAY,
+    LABORATORY,
+    AIRLOCK,
 
-typedef struct Room {
-    char description[256];
-    struct Room *north;
-    struct Room *south;
-    struct Room *east;
-    struct Room *west;
-} Room;
+    // on the planet
+    LANDING_SITE,
+    WASTELAND,
+    LOOSE_SOIL,
+    POND,
+    SHARP_ROCKS,
+    CAVE,
+    CRATER,
+    CANYON,
+    MOUNTAIN,
+};
 
-void initializeRooms(Room rooms[]) {
-    // Room 0
-    strcpy(rooms[0].description, "You are in a forest clearing. Paths lead east and south.");
-    rooms[0].east = &rooms[1];
-    rooms[0].south = &rooms[2];
-    rooms[0].north = NULL;
-    rooms[0].west = NULL;
+struct tile
+{
+    enum TYPE type;   
+    int interactions;
+    int collectibles;
+};
 
-    // Room 1
-    strcpy(rooms[1].description, "You are on a narrow path. The forest thickens to the north.");
-    rooms[1].west = &rooms[0];
-    rooms[1].north = &rooms[3];
-    rooms[1].east = NULL;
-    rooms[1].south = NULL;
+struct player {
+    int positionX;
+    int positionY;
+    int food;
+    int oxygen;
+    int inventory[10];
+    int water;
+};
 
-    // Room 2
-    strcpy(rooms[2].description, "You are at the edge of a peaceful lake.");
-    rooms[2].north = &rooms[0];
-    rooms[2].east = NULL;
-    rooms[2].south = NULL;
-    rooms[2].west = NULL;
-
-    // Room 3
-    strcpy(rooms[3].description, "You are in a dark cave. It is cold and damp.");
-    rooms[3].south = &rooms[1];
-    rooms[3].east = NULL;
-    rooms[3].west = NULL;
-    rooms[3].north = NULL;
-
-    // Room 4
-    strcpy(rooms[4].description, "You have found a hidden treasure! Congratulations!");
-    rooms[4].south = &rooms[3];
-    rooms[4].east = NULL;
-    rooms[4].west = NULL;
-    rooms[4].north = NULL;
-
-    // Connecting Room 3 to Room 4
-    rooms[3].north = &rooms[4];
+struct player* create_player() {
+    struct player* new_player = malloc(sizeof(struct player));
+    new_player->positionX = 0;
+    new_player->positionY = 0;
+    new_player->food = 100;
+    new_player->oxygen = 100;
+    new_player->water = 100;
+    for (int i = 0; i < 10; i++) {
+        new_player->inventory[i] = 0;
+    }
+    return new_player;
 }
 
-int main() {
-    Room rooms[MAX_ROOMS];
-    Room *currentRoom;
-    char input[MAX_INPUT];
+// Constructor function to create a new tile (ct = create_tile)
+struct tile* ct(enum TYPE type) {
+    struct tile* new_tile = malloc(sizeof(struct tile));
+    new_tile->type = type;
+    return new_tile;
+}
 
-    initializeRooms(rooms);
-    currentRoom = &rooms[0];
 
-    printf("Welcome to the Adventure Game!\n");
+int main(){
+    struct tile* map[3][3] = {
+        {ct(STORAGE), ct(CHAMBERS), ct(COCKPIT)},
+        {ct(CAFETERIA), ct(ENGINE_BAY), ct(LABORATORY)},
+        {ct(AIRLOCK), ct(LANDING_SITE), ct(WASTELAND)}
+    };    
+
+    struct player* player = create_player();
+
+    printf("Welcome to the game!\n");
+    printf("You are stranded on an Mars and need to find a way to survive.\n");
 
     while (1) {
-        printf("\n%s\n", currentRoom->description);
-        printf("What do you do? (go north, go south, go east, go west, quit): ");
-        fgets(input, MAX_INPUT, stdin);
+        printf("You are at position (%d, %d)\n", player->positionX, player->positionY);
+        printf("What would you like to do?\n");
+        printf("1. Move\n");
+        printf("2. Interact\n");
+        printf("3. Check inventory\n");
+        printf("4. Check vitals\n");
+        printf("5. Quit\n");
 
-        // Remove newline character from input
-        input[strcspn(input, "\n")] = 0;
+        int choice;
+        scanf("%d", &choice);
 
-        if (strcmp(input, "go north") == 0) {
-            if (currentRoom->north != NULL) {
-                currentRoom = currentRoom->north;
+        if (choice == 1) {
+            
+            printf("Which direction would you like to move?\n");
+            printf("1. North\n");
+            printf("2. East\n");
+            printf("3. South\n");
+            printf("4. West\n");
+
+            int direction;
+            scanf("%d", &direction);
+
+            if (direction == 1) {
+                player->positionY -= 1;
+            } else if (direction == 2) {
+                player->positionX += 1;
+            } else if (direction == 3) {
+                player->positionY += 1;
+            } else if (direction == 4) {
+                player->positionX -= 1;
             } else {
-                printf("You can't go that way.\n");
+                printf("Invalid direction\n");
             }
-        } else if (strcmp(input, "go south") == 0) {
-            if (currentRoom->south != NULL) {
-                currentRoom = currentRoom->south;
-            } else {
-                printf("You can't go that way.\n");
-            }
-        } else if (strcmp(input, "go east") == 0) {
-            if (currentRoom->east != NULL) {
-                currentRoom = currentRoom->east;
-            } else {
-                printf("You can't go that way.\n");
-            }
-        } else if (strcmp(input, "go west") == 0) {
-            if (currentRoom->west != NULL) {
-                currentRoom = currentRoom->west;
-            } else {
-                printf("You can't go that way.\n");
-            }
-        } else if (strcmp(input, "quit") == 0) {
-            printf("Thanks for playing!\n");
+        } else if (choice == 2) {
+            printf("Interacting with the environment...\n");
+        } else if (choice == 3) {
+            printf("Checking inventory...\n");
+        } else if (choice == 4) {
+            printf("Checking vitals...\n");
+        } else if (choice == 5) {
+            printf("Quitting game...\n");
             break;
         } else {
-            printf("I don't understand that command.\n");
-        }
-
-        // Check if the player has reached the treasure
-        if (currentRoom == &rooms[4]) {
-            printf("\n%s\n", currentRoom->description);
-            printf("You have completed the game!\n");
-            break;
+            printf("Invalid choice\n");
         }
     }
-
-    return 0;
 }
+
+

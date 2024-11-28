@@ -1,0 +1,22 @@
+---
+triple:          'arm64-apple-darwin'
+binary-path:     game
+relocations:
+  - { offset: 0x26, size: 0x8, addend: 0x0, symName: _create_player, symObjAddr: 0x0, symBinAddr: 0x100002EBC, symSize: 0x98 }
+  - { offset: 0x4D, size: 0x8, addend: 0x0, symName: _TILETYPE_NAMES, symObjAddr: 0x10A8, symBinAddr: 0x100008000, symSize: 0x0 }
+  - { offset: 0x78, size: 0x8, addend: 0x0, symName: _COLLECTIBLE_NAMES, symObjAddr: 0x1128, symBinAddr: 0x100008080, symSize: 0x0 }
+  - { offset: 0x13E, size: 0x8, addend: 0x0, symName: _create_player, symObjAddr: 0x0, symBinAddr: 0x100002EBC, symSize: 0x98 }
+  - { offset: 0x182, size: 0x8, addend: 0x0, symName: _storage, symObjAddr: 0x98, symBinAddr: 0x100002F54, symSize: 0x7C }
+  - { offset: 0x1AA, size: 0x8, addend: 0x0, symName: _chambers, symObjAddr: 0x114, symBinAddr: 0x100002FD0, symSize: 0x44 }
+  - { offset: 0x1D2, size: 0x8, addend: 0x0, symName: _cockpit, symObjAddr: 0x158, symBinAddr: 0x100003014, symSize: 0x50 }
+  - { offset: 0x1FA, size: 0x8, addend: 0x0, symName: _cafeteria, symObjAddr: 0x1A8, symBinAddr: 0x100003064, symSize: 0x50 }
+  - { offset: 0x222, size: 0x8, addend: 0x0, symName: _engine_bay, symObjAddr: 0x1F8, symBinAddr: 0x1000030B4, symSize: 0x34 }
+  - { offset: 0x24A, size: 0x8, addend: 0x0, symName: _laboratory, symObjAddr: 0x22C, symBinAddr: 0x1000030E8, symSize: 0x34 }
+  - { offset: 0x272, size: 0x8, addend: 0x0, symName: _airlock, symObjAddr: 0x260, symBinAddr: 0x10000311C, symSize: 0x34 }
+  - { offset: 0x29A, size: 0x8, addend: 0x0, symName: _landing_site, symObjAddr: 0x294, symBinAddr: 0x100003150, symSize: 0x34 }
+  - { offset: 0x2C2, size: 0x8, addend: 0x0, symName: _wasteland, symObjAddr: 0x2C8, symBinAddr: 0x100003184, symSize: 0x34 }
+  - { offset: 0x2EA, size: 0x8, addend: 0x0, symName: _ct, symObjAddr: 0x2FC, symBinAddr: 0x1000031B8, symSize: 0xC8 }
+  - { offset: 0x312, size: 0x8, addend: 0x0, symName: _add_to_inventory, symObjAddr: 0x3E8, symBinAddr: 0x1000032A4, symSize: 0xC0 }
+  - { offset: 0x360, size: 0x8, addend: 0x0, symName: _check_storage, symObjAddr: 0x4A8, symBinAddr: 0x100003364, symSize: 0xB4 }
+  - { offset: 0x3AE, size: 0x8, addend: 0x0, symName: _main, symObjAddr: 0x55C, symBinAddr: 0x100003418, symSize: 0x684 }
+...

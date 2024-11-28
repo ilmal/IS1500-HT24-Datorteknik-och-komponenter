@@ -71,7 +71,7 @@ struct tile
     enum TILETYPE type;   
     // interactions
     int interactable;
-    char interaction_text;
+    char* interaction_text;
 
     // storage
     enum COLLECTIBLETYPE storage[50];      // storage can store more than enough
@@ -116,6 +116,7 @@ struct player* create_player() {
 // storage struct
 struct tile* storage(){
     struct tile* storage_tile = malloc(sizeof(struct tile));
+    storage_tile->type = STORAGE;   // set type
     storage_tile->interactable = 1;
     storage_tile->interaction_text = "You are in the storage room which holds your food and scientific samples - you can store your inventory here.";
     memset(storage_tile->storage, 0, sizeof(storage_tile->storage));
@@ -130,6 +131,7 @@ struct tile* storage(){
 // chambers struct
 struct tile* chambers() {
     struct tile* chambers_tile = malloc(sizeof(struct tile));
+    chambers_tile->type = CHAMBERS;     // set type
     chambers_tile->interaction_text = "You are in the personal chambers, this is the starting point.";
     return chambers_tile;
 }
@@ -137,6 +139,7 @@ struct tile* chambers() {
 // cockpit struct
 struct tile* cockpit() {
     struct tile* cockpit_tile = malloc(sizeof(struct tile));
+    cockpit_tile->type = COCKPIT;       // set type
     cockpit_tile->interactable = 1;
     cockpit_tile->interaction_text = "You have entered the cockpit, you can now choose to end the game if you want.";
     
@@ -146,13 +149,52 @@ struct tile* cockpit() {
 // cafeteria struct
 struct tile* cafeteria() {
     struct tile* cafeteria_tile = malloc(sizeof(struct tile));
+    cafeteria_tile->type = CAFETERIA;
     cafeteria_tile->interaction_text = "You have entered the cafeteria, collect food here.";
     cafeteria_tile->collectibles = 1;
 
     return cafeteria_tile;
 }
+// engine bay struct
+struct tile* engine_bay() {
+    struct tile* engine_bay_tile = malloc(sizeof(struct tile));
+    engine_bay_tile->type = ENGINE_BAY;
+    // TODO: power up map minigame stuff
 
+    return engine_bay_tile;
+}
 
+// laboratory struct
+struct tile* laboratory() {
+    struct tile* laboratory_tile = malloc(sizeof(struct tile));
+    laboratory_tile->type = LABORATORY;
+    // TODO: create fuel/water logic
+
+    return laboratory_tile;
+}
+
+// airlock struct
+struct tile* airlock() {
+    struct tile* airlock_tile = malloc(sizeof(struct tile));
+    airlock_tile->type = AIRLOCK;
+    // TODO: refill oxygen logic
+
+    return airlock_tile;
+}
+
+// landing site struct
+struct tile* landing_site() {
+    struct tile* landing_site_tile = malloc(sizeof(struct tile));
+    landing_site_tile->type = LANDING_SITE;
+    return landing_site_tile;
+}
+
+// wasteland struct
+struct tile* wasteland() {
+    struct tile* wasteland_tile = malloc(sizeof(struct tile));
+    wasteland_tile->type = WASTELAND;
+    return wasteland_tile;
+}
 
 // Constructor function to create a new tile (ct = create_tile)
 struct tile* ct(enum TILETYPE type) {
@@ -166,9 +208,18 @@ struct tile* ct(enum TILETYPE type) {
         return cockpit();
     case 3: 
         return cafeteria();
-
+    case 4: 
+        return engine_bay();
+    case 5: 
+        return laboratory();
+    case 6: 
+        return airlock();
+    case 7:
+        return landing_site();
+    case 8:
+        return wasteland();
     default:
-        break;
+        return wasteland(); 
     }
 }
 
@@ -201,6 +252,16 @@ int main(){
         {ct(CAFETERIA), ct(ENGINE_BAY), ct(LABORATORY)},
         {ct(AIRLOCK), ct(LANDING_SITE), ct(WASTELAND)}
     };    
+    // debugging
+    for (int y = 0; y < 3; y++) {
+        for (int x = 0; x < 3; x++) {
+            if (map[y][x] == NULL) {
+                printf("Error: map[%d][%d] is not initialized\n", y, x);
+            } else {
+                printf("map[%d][%d] is initialized: %s\n", y, x, TILETYPE_NAMES[map[y][x]->type]);
+            }
+        }
+    }
 
     struct player* player = create_player();
 
@@ -210,6 +271,7 @@ int main(){
 
     while (1) {
         printf("You are at position (%d, %d)\n", player->positionX, player->positionY);
+        printf("%s\n", map[player->positionY][player->positionX]->type);
         printf("The tile is: %s\n", TILETYPE_NAMES[map[player->positionY][player->positionX]->type]);
         printf("What would you like to do? (write a number)\n");
         printf("1. Move\n");
@@ -232,6 +294,9 @@ int main(){
             int direction;
             scanf("%d", &direction);
 
+            printf("Current position: (%d, %d)\n", player->positionX, player->positionY);
+
+            // Move the player
             if (direction == 1 && player->positionY > 0) {
                 player->positionY -= 1;
             } else if (direction == 2 && player->positionX < 2) {
@@ -241,36 +306,44 @@ int main(){
             } else if (direction == 4 && player->positionX > 0) {
                 player->positionX -= 1;
             } else {
-                printf("Invalid direction\n");
+                printf("Invalid direction or out of bounds\n");
+                continue; // Skip the movement if invalid
             }
-        } else if (choice == 2) {
-            // storage
-            if (map[player->positionY][player->positionX]->type == STORAGE) {
-                struct tile* storage_tile = map[player->positionY][player->positionX];
-                check_storage(player, storage_tile);
-            }
-            // cockpit
-            else if(map[player->positionY][player->positionX]->type == COCKPIT) {
-                char end_game;
-                printf("Do you want to end the game and return to Earth? (y/n)\n");
-                scanf("%c\n", &end_game);
-                if (end_game == 'y' || end_game == 'Y') {
-                    printf("You have chosen to end the game. Goodbye!\n");
-                    // TODO: win/lose logic
-                    break;  // Exit the while loop and end the game
-                } else {
-                    printf("Lol, you coward. Keep playing then...\n");  // change text maybe?
-                }
-            }
-            else if(map[player->positionY][player->positionX]->type == CAFETERIA) {
-                printf("Grab some food? (y/n)\n");
-                char grab_food;
-                scanf("%c\n", &grab_food);
-                if(grab_food == 'y' || grab_food == 'Y') {
-                    printf("You have grabbed one lunchbox.\n");
 
-                }
-            }
+            printf("New position: (%d, %d)\n", player->positionX, player->positionY);
+            printf("Tile type at new position: %s\n", TILETYPE_NAMES[map[player->positionY][player->positionX]->type]);
+
+        } else if (choice == 2) {
+            printf("checking interaction...");
+            // // storage
+            // if (map[player->positionY][player->positionX]->type == STORAGE) {
+            //     struct tile* storage_tile = map[player->positionY][player->positionX];
+            //     check_storage(player, storage_tile);
+            //     // TODO: storage logic
+            // }
+            // // cockpit
+            // else if(map[player->positionY][player->positionX]->type == COCKPIT) {
+            //     char end_game;
+            //     printf("Do you want to end the game and return to Earth? (y/n)\n");
+            //     scanf("%c\n", &end_game);
+            //     if (end_game == 'y' || end_game == 'Y') {
+            //         printf("You have chosen to end the game. Goodbye!\n");
+            //         // TODO: win/lose logic
+            //         break;  
+            //     } else {
+            //         printf("Lol, you coward. Keep playing then...\n");  // change text maybe?
+            //     }
+            // }
+            // // cafeteria
+            // else if(map[player->positionY][player->positionX]->type == CAFETERIA) {
+            //     printf("Grab some food? (y/n)\n");
+            //     char grab_food;
+            //     scanf("%c\n", &grab_food);
+            //     if(grab_food == 'y' || grab_food == 'Y') {
+            //         printf("You have grabbed one lunchbox.\n");
+
+            //     }
+            // }
             
         } else if (choice == 3) {
             printf("Items in your inventory: \n");

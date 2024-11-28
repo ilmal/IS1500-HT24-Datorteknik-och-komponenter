@@ -52,15 +52,15 @@ enum COLLECTIBLETYPE {
     OLD_ROVER_PARTS,    // found in wasteland (low chance)
     ICE,                // found in somewhere
     FOOD,               // found in cafeteria
-    BOTTLE_OF_WATER,    // found in cafeteria    
+    BOTTLE_OF_WATER,    // found in cafeteria
 };
 
 const char* COLLECTIBLE_NAMES[] = {
     "Tardigrades",
     "Sedimentary Layers",
-    "RSL Images"
+    "RSL Images",
     "Alien Bones",
-    "Old Rover Parts"
+    "Old Rover Parts",
     "Ice",
     "Food",
     "Bottle of Water"
@@ -237,9 +237,9 @@ void add_to_inventory(struct player* player, enum COLLECTIBLETYPE item) {
 
 // helper func to see storage
 void check_storage(struct player* player, struct tile* storage_tile) {
-    // printf("%s\n", storage_tile->interaction_text);
+    printf("%s\n", storage_tile->interaction_text);
     printf("You have stored the following items: \n");
-    for(int i = 0; i < 5; i++) {
+    for(int i = 0; i < 4; i++) {
         if(storage_tile->storage[i] != 0) {
             printf("%s\n", COLLECTIBLE_NAMES[storage_tile->storage[i]]);
         }
@@ -314,44 +314,45 @@ int main(){
             printf("Tile type at new position: %s\n", TILETYPE_NAMES[map[player->positionY][player->positionX]->type]);
 
         } else if (choice == 2) {
-            printf("checking interaction...");
-            // // storage
-            // if (map[player->positionY][player->positionX]->type == STORAGE) {
-            //     struct tile* storage_tile = map[player->positionY][player->positionX];
-            //     check_storage(player, storage_tile);
-            //     // TODO: storage logic
-            // }
-            // // cockpit
-            // else if(map[player->positionY][player->positionX]->type == COCKPIT) {
-            //     char end_game;
-            //     printf("Do you want to end the game and return to Earth? (y/n)\n");
-            //     scanf("%c\n", &end_game);
-            //     if (end_game == 'y' || end_game == 'Y') {
-            //         printf("You have chosen to end the game. Goodbye!\n");
-            //         // TODO: win/lose logic
-            //         break;  
-            //     } else {
-            //         printf("Lol, you coward. Keep playing then...\n");  // change text maybe?
-            //     }
-            // }
-            // // cafeteria
-            // else if(map[player->positionY][player->positionX]->type == CAFETERIA) {
-            //     printf("Grab some food? (y/n)\n");
-            //     char grab_food;
-            //     scanf("%c\n", &grab_food);
-            //     if(grab_food == 'y' || grab_food == 'Y') {
-            //         printf("You have grabbed one lunchbox.\n");
+            printf("checking interaction... \n");
+            // storage
+            if (map[player->positionY][player->positionX]->type == STORAGE) {
+                
+                check_storage(player, map[player->positionY][player->positionX]);
+                // TODO: storage logic
+            }
+            // cockpit
+            else if(map[player->positionY][player->positionX]->type == COCKPIT) {
+                char end_game;
+                printf("Do you want to end the game and return to Earth? (y/n)\n");
+                scanf("%c\n", &end_game);
+                if (end_game == 'y' || end_game == 'Y') {
+                    printf("You have chosen to end the game. Goodbye!\n");
+                    // TODO: win/lose logic
+                    break;  
+                } else {
+                    printf("Lol, you coward. Keep playing then...\n");  // change text maybe? naaah
+                }
+            }
+            // cafeteria
+            else if(map[player->positionY][player->positionX]->type == CAFETERIA) {
+                printf("Grab some food? (y/n)\n");
+                char grab_food;
+                scanf("%c\n", &grab_food);
+                if(grab_food == 'y' || grab_food == 'Y') {
+                    printf("You have grabbed one lunchbox.\n");
 
-            //     }
-            // }
+                }
+            }
             
         } else if (choice == 3) {
-            printf("Items in your inventory: \n");
-            for(int i = 0; i < 5; i++) {
+            printf("+------------------ INVENTORY ------------------+\n");
+            for(int i = 0; i < 4; i++) {
                 if(player->inventory[i]!=0) {
                     printf("%s\n", COLLECTIBLE_NAMES[player->inventory[i]]);
                 }
             }
+            printf("+------------------ --------- ------------------+\n");
         } else if (choice == 4) {
             printf("Checking vitals...\n");
         } else if (choice == 5) {

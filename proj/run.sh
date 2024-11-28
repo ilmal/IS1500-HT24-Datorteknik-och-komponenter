@@ -1,2 +1,2 @@
-gcc game.c -o game
+gcc -Wall -Wextra game.c -o game
 ./game

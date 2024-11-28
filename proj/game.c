@@ -271,7 +271,7 @@ int main(){
 
     while (1) {
         printf("You are at position (%d, %d)\n", player->positionX, player->positionY);
-        printf("%s\n", map[player->positionY][player->positionX]->type);
+        printf("%d\n", map[player->positionY][player->positionX]->type);
         printf("The tile is: %s\n", TILETYPE_NAMES[map[player->positionY][player->positionX]->type]);
         printf("What would you like to do? (write a number)\n");
         printf("1. Move\n");

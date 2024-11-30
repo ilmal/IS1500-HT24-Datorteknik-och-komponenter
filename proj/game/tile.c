@@ -10,6 +10,7 @@ struct tile *storage()
   storage_tile->type = STORAGE; // set type
   storage_tile->interactable = 1;
   storage_tile->interaction_text = "You are in the storage room which holds your food and scientific samples - you can store your inventory here.";
+  storage_tile->outside_rocket = 0;
   memset(storage_tile->storage, 0, sizeof(storage_tile->storage));
 
   // default items in the storage:
@@ -24,6 +25,7 @@ struct tile *chambers()
 {
   struct tile *chambers_tile = malloc(sizeof(struct tile));
   chambers_tile->type = CHAMBERS; // set type
+  chambers_tile->outside_rocket = 0;
   chambers_tile->interaction_text = "You are in the personal chambers, this is the starting point.";
   return chambers_tile;
 }
@@ -34,6 +36,7 @@ struct tile *cockpit()
   struct tile *cockpit_tile = malloc(sizeof(struct tile));
   cockpit_tile->type = COCKPIT; // set type
   cockpit_tile->interactable = 1;
+  cockpit_tile->outside_rocket = 0;
   cockpit_tile->interaction_text = "You have entered the cockpit, you can now choose to end the game if you want.";
 
   return cockpit_tile;
@@ -44,8 +47,9 @@ struct tile *cafeteria()
 {
   struct tile *cafeteria_tile = malloc(sizeof(struct tile));
   cafeteria_tile->type = CAFETERIA;
+  cafeteria_tile->outside_rocket = 0;
   cafeteria_tile->interaction_text = "You have entered the cafeteria, collect food here.";
-  cafeteria_tile->collectibles = 1;
+  cafeteria_tile->collectible = FOOD; // what to be collected here
 
   return cafeteria_tile;
 }
@@ -54,6 +58,7 @@ struct tile *engine_bay()
 {
   struct tile *engine_bay_tile = malloc(sizeof(struct tile));
   engine_bay_tile->type = ENGINE_BAY;
+  engine_bay_tile->outside_rocket = 0;
   // TODO: power up map minigame stuff
 
   return engine_bay_tile;
@@ -64,6 +69,7 @@ struct tile *laboratory()
 {
   struct tile *laboratory_tile = malloc(sizeof(struct tile));
   laboratory_tile->type = LABORATORY;
+  laboratory_tile->outside_rocket = 0;
   // TODO: create fuel/water logic
 
   return laboratory_tile;
@@ -74,6 +80,7 @@ struct tile *airlock()
 {
   struct tile *airlock_tile = malloc(sizeof(struct tile));
   airlock_tile->type = AIRLOCK;
+  airlock_tile->outside_rocket = 0;
   // TODO: refill oxygen logic
 
   return airlock_tile;
@@ -84,6 +91,7 @@ struct tile *landing_site()
 {
   struct tile *landing_site_tile = malloc(sizeof(struct tile));
   landing_site_tile->type = LANDING_SITE;
+  landing_site_tile->outside_rocket = 1;
   return landing_site_tile;
 }
 
@@ -92,7 +100,82 @@ struct tile *wasteland()
 {
   struct tile *wasteland_tile = malloc(sizeof(struct tile));
   wasteland_tile->type = WASTELAND;
+  wasteland_tile->outside_rocket = 1;
   return wasteland_tile;
+}
+
+// loose soil struct
+struct tile *loose_soil()
+{
+  struct tile *loose_soil_tile = malloc(sizeof(struct tile));
+  loose_soil_tile->type = LOOSE_SOIL;
+  loose_soil_tile->outside_rocket = 1;
+
+  // TODO: logic to decrease food *0.5
+
+  return loose_soil_tile;
+}
+
+// pond struct
+struct tile *pond()
+{
+  struct tile *pond_tile = malloc(sizeof(struct tile));
+  pond_tile->type = POND;
+  pond_tile->outside_rocket = 1;
+  pond_tile->collectible = TARDIGRADES;
+
+  return pond_tile;
+}
+
+struct tile *sharp_rocks()
+{
+  struct tile *sharp_rocks_tile = malloc(sizeof(struct tile));
+  sharp_rocks_tile->type = SHARP_ROCKS;
+  sharp_rocks_tile->outside_rocket = 1;
+  // TODO: logic to decrease oxygen with *0.5
+
+  return sharp_rocks_tile;
+}
+
+// cave struct
+struct tile *cave()
+{
+  struct tile *cave_tile = malloc(sizeof(struct tile));
+  cave_tile->type = CAVE;
+  cave_tile->outside_rocket = 1;
+
+  return cave_tile;
+}
+
+// crater struct
+struct tile *crater()
+{
+  struct tile *crater_tile = malloc(sizeof(struct tile));
+  crater_tile->type = CRATER;
+  crater_tile->outside_rocket = 1;
+  crater_tile->collectible = SEDIMENTARY_LAYERS;
+
+  return crater_tile;
+}
+// canyon struct
+struct tile *canyon()
+{
+  struct tile *canyon_tile = malloc(sizeof(struct tile));
+  canyon_tile->type = CANYON;
+  canyon_tile->outside_rocket = 1;
+  canyon_tile->collectible = RSL_IMAGES;
+
+  return canyon_tile;
+}
+
+// mountain struct
+struct tile *mountain()
+{
+  struct tile *mountain_tile = malloc(sizeof(struct tile));
+  mountain_tile->type = MOUNTAIN;
+  mountain_tile->outside_rocket = 1;
+
+  return mountain_tile;
 }
 
 // the ct (create_tile) function

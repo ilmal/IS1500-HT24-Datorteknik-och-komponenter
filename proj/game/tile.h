@@ -14,15 +14,14 @@ struct tile
   char *interaction_text;
 
   // storage
-  enum COLLECTIBLETYPE storage[STORAGE_SIZE]; // storage can store more than enough
+  enum COLLECTIBLETYPE storage[50]; // storage can store more than enough
 
   // collectibles
-  int collectibles;
+  // int collectibles;
+  enum COLLECTIBLETYPE collectible;
 
-  // stat changes
-  int drop_oxygen;
-  int drop_food;
-  int drop_water;
+  // drop oxygen only if outside
+  int outside_rocket;
 };
 
 // Function prototypes

@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <unistd.h> // For usleep
 #include <string.h>
+
 #include "game.h"
 #include "tile.h"
 #include "player.h"
@@ -9,6 +10,38 @@
 
 // Function prototype
 void display_frame(struct player *player, struct tile *current_tile);
+
+// dropping stats
+void drop_stats(struct player *player, struct tile *current_tile)
+{
+  if (current_tile->outside_rocket == 1)
+  {
+    player->oxygen -= 1;
+  }
+  else if (current_tile->outside_rocket == 0)
+  {
+    player->oxygen = 100;
+  }
+  player->water -= 1;
+  player->food -= 1;
+
+  // Check if any stat reaches 0
+  if (player->oxygen <= 0)
+  {
+    printf("You have run out of oxygen! Game over. \n");
+    exit(0);
+  }
+  if (player->water <= 0)
+  {
+    printf("You have run out of water! Game over. \n");
+    exit(0);
+  }
+  if (player->food <= 0)
+  {
+    printf("You have run out of food! Game over. \n");
+    exit(0);
+  }
+}
 
 int main()
 {
@@ -24,6 +57,8 @@ int main()
   {
     // Get the current tile based on player's position
     struct tile *current_tile = map[player->positionY][player->positionX];
+
+    drop_stats(player, map[player->positionY][player->positionX]);
 
     // Display the frame
     display_frame(player, current_tile);
@@ -120,6 +155,11 @@ void display_frame(struct player *player, struct tile *current_tile)
   printf("+------------------------------------------------+\n");
   printf("| Position: (%d, %d)                              \n", player->positionX, player->positionY);
   printf("| Location: %s                                    \n", TILETYPE_NAMES[current_tile->type]);
+  printf("+------------------------------------------------+\n");
+  printf("| Vitals:                                        |\n");
+  printf("|   Food:   %d%%                                   \n", player->food);
+  printf("|   Water:  %d%%                                   \n", player->water);
+  printf("|   Oxygen: %d%%                                   \n", player->oxygen);
   printf("+------------------------------------------------+\n");
   printf("| Inventory:                                     |\n");
   for (int i = 0; i < INVENTORY_SIZE; i++)

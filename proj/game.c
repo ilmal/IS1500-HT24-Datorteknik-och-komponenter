@@ -380,6 +380,10 @@ void drop_stats(struct player *player, struct tile *current_tile)
     {
         player->oxygen -= 1;
     }
+    else if (current_tile->outside_rocket == 0)
+    {
+        player->oxygen = 100;
+    }
     player->water -= 1;
     player->food -= 1;
 

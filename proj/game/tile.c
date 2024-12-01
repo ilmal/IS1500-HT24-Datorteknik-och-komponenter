@@ -187,6 +187,16 @@ struct tile *mountain()
   return mountain_tile;
 }
 
+// empty struct
+struct tile *empty()
+{
+  struct tile *empty_tile = malloc(sizeof(struct tile));
+  empty_tile->type = EMPTY;
+  empty_tile->outside_rocket = 0;
+
+  return empty_tile;
+}
+
 // the ct (create_tile) function
 struct tile *ct(enum TILETYPE type)
 {
@@ -210,6 +220,8 @@ struct tile *ct(enum TILETYPE type)
     return landing_site();
   case WASTELAND:
     return wasteland();
+  case EMPTY:
+    return empty();
   default:
     return wasteland();
   }

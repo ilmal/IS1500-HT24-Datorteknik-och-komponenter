@@ -9,7 +9,7 @@
 #include "inventory.h"
 
 // Function prototype
-void display_frame(struct player *player, struct tile *current_tile);
+void display_frame(struct player *player, struct tile *current_tile, struct tile *map[10][10]);
 
 // dropping stats
 void drop_stats(struct player *player, struct tile *current_tile)
@@ -45,10 +45,19 @@ void drop_stats(struct player *player, struct tile *current_tile)
 
 int main()
 {
-  struct tile *map[3][3] = {
-      {ct(STORAGE), ct(CHAMBERS), ct(COCKPIT)},
-      {ct(CAFETERIA), ct(ENGINE_BAY), ct(LABORATORY)},
-      {ct(AIRLOCK), ct(LANDING_SITE), ct(WASTELAND)}};
+  // clang-format off
+  struct tile *map[10][10] = {
+      {ct(WASTELAND), ct(WASTELAND),  ct(WASTELAND),  ct(WASTELAND), ct(WASTELAND), ct(WASTELAND), ct(WASTELAND), ct(WASTELAND), ct(WASTELAND), ct(WASTELAND)},
+      {ct(WASTELAND), ct(WASTELAND),  ct(WASTELAND),  ct(WASTELAND), ct(WASTELAND), ct(WASTELAND), ct(WASTELAND), ct(WASTELAND), ct(WASTELAND), ct(WASTELAND)},
+      {ct(EMPTY),     ct(EMPTY),      ct(EMPTY),      ct(WASTELAND), ct(WASTELAND), ct(WASTELAND), ct(WASTELAND), ct(WASTELAND), ct(WASTELAND), ct(WASTELAND)},
+      {ct(CHAMBERS),  ct(COCKPIT),    ct(EMPTY),      ct(WASTELAND), ct(WASTELAND), ct(WASTELAND), ct(WASTELAND), ct(WASTELAND), ct(WASTELAND), ct(WASTELAND)},
+      {ct(CAFETERIA), ct(STORAGE),    ct(AIRLOCK),    ct(WASTELAND), ct(WASTELAND), ct(WASTELAND), ct(WASTELAND), ct(WASTELAND), ct(WASTELAND), ct(WASTELAND)},
+      {ct(ENGINE_BAY),ct(LABORATORY), ct(EMPTY),      ct(WASTELAND), ct(WASTELAND), ct(WASTELAND), ct(WASTELAND), ct(WASTELAND), ct(WASTELAND), ct(WASTELAND)},
+      {ct(EMPTY),     ct(EMPTY),      ct(EMPTY),      ct(WASTELAND), ct(WASTELAND), ct(WASTELAND), ct(WASTELAND), ct(WASTELAND), ct(WASTELAND), ct(WASTELAND)},
+      {ct(WASTELAND), ct(WASTELAND),  ct(WASTELAND),  ct(WASTELAND), ct(WASTELAND), ct(WASTELAND), ct(WASTELAND), ct(WASTELAND), ct(WASTELAND), ct(WASTELAND)},
+      {ct(WASTELAND), ct(WASTELAND),  ct(WASTELAND),  ct(WASTELAND), ct(WASTELAND), ct(WASTELAND), ct(WASTELAND), ct(WASTELAND), ct(WASTELAND), ct(WASTELAND)},
+      {ct(WASTELAND), ct(WASTELAND),  ct(WASTELAND),  ct(WASTELAND), ct(WASTELAND), ct(WASTELAND), ct(WASTELAND), ct(WASTELAND), ct(WASTELAND), ct(WASTELAND)},
+  };
 
   struct player *player = create_player();
 
@@ -61,7 +70,7 @@ int main()
     drop_stats(player, map[player->positionY][player->positionX]);
 
     // Display the frame
-    display_frame(player, current_tile);
+    display_frame(player, current_tile, map);
 
     // Handle user input
     printf("What would you like to do? (write a number)\n");
@@ -86,30 +95,40 @@ int main()
       printf("Enter direction: ");
       int direction;
       scanf("%d", &direction);
-      while (getchar() != '\n')
-        ;
+      while (getchar() != '\n');
+
+      int new_positionX = player->positionX;
+      int new_positionY = player->positionY;
 
       // Move the player
-      if (direction == 1 && player->positionY > 0)
+      if (direction == 1)
       {
-        player->positionY -= 1;
+        new_positionY -= 1;
       }
-      else if (direction == 2 && player->positionX < 2)
+      else if (direction == 2)
       {
-        player->positionX += 1;
+        new_positionX += 1;
       }
-      else if (direction == 3 && player->positionY < 2)
+      else if (direction == 3)
       {
-        player->positionY += 1;
+        new_positionY += 1;
       }
-      else if (direction == 4 && player->positionX > 0)
+      else if (direction == 4)
       {
-        player->positionX -= 1;
+        new_positionX -= 1;
+      }
+      
+      // Check if the new position is within bounds
+      if (new_positionX >= 0 && new_positionX < 10 && new_positionY >= 0 && new_positionY < 10 && map[new_positionY][new_positionX]->type != EMPTY)
+      {
+        player->positionX = new_positionX;
+        player->positionY = new_positionY;
       }
       else
       {
-        printf("Invalid direction or out of bounds\n");
+        printf("You cannot move in that direction.\n");
       }
+
     }
     else if (choice == 2)
     {
@@ -119,6 +138,7 @@ int main()
     else if (choice == 3)
     {
       printf("Are you sure you want to quit the game? yes/no\n");
+      running = 0; // temp for dev
       char confirmation[4];
       scanf("%3s", confirmation);
       if (strcmp(confirmation, "yes") == 0)
@@ -136,12 +156,9 @@ int main()
       printf("Invalid choice\n");
     }
   }
-
-  // Sleep for a short duration before updating
-  usleep(500000); // 500,000 microseconds = 500 milliseconds
 }
 
-void display_frame(struct player *player, struct tile *current_tile)
+void display_frame(struct player *player, struct tile *current_tile, struct tile *map[10][10])
 {
   // Clear the screen using ANSI escape code
   printf("\033[2J");
@@ -150,18 +167,30 @@ void display_frame(struct player *player, struct tile *current_tile)
   printf("\033[H");
 
   // Draw the frame
-  printf("+------------------------------------------------+\n");
-  printf("|            MARS SURVIVAL GAME                  |\n");
-  printf("+------------------------------------------------+\n");
-  printf("| Position: (%d, %d)                              \n", player->positionX, player->positionY);
-  printf("| Location: %s                                    \n", TILETYPE_NAMES[current_tile->type]);
-  printf("+------------------------------------------------+\n");
-  printf("| Vitals:                                        |\n");
-  printf("|   Food:   %d%%                                   \n", player->food);
-  printf("|   Water:  %d%%                                   \n", player->water);
-  printf("|   Oxygen: %d%%                                   \n", player->oxygen);
-  printf("+------------------------------------------------+\n");
-  printf("| Inventory:                                     |\n");
+  printf("+------------------------------------------------+ \n");
+  printf("|            MARS SURVIVAL GAME                  | \n");
+  printf("+------------------------------------------------+ \n");
+  printf("| Position: (%d, %d)                               \n", player->positionX, player->positionY);
+  printf("| Location: %s                                     \n", TILETYPE_NAMES[current_tile->type]);
+  printf("+------------------------------------------------+ \n");
+  printf("| Map:                                             \n");
+  for (int y = 0; y < 10; y++)
+  {
+    printf("| ");
+    for (int x = 0; x < 10; x++)
+    {
+      if (player->positionX == x && player->positionY == y)
+      {
+        printf("[PL] ");
+      }
+      else
+      {
+        printf("[%s] ", TILETYPE_MAP_NAMES[map[y][x]->type]);
+      }
+    }
+    printf("\n");
+  }
+  printf("| Inventory:                                     | \n");
   for (int i = 0; i < INVENTORY_SIZE; i++)
   {
     printf("|   Slot %d: %s                                    \n", i + 1,
@@ -172,7 +201,7 @@ void display_frame(struct player *player, struct tile *current_tile)
   printf("+------------------------------------------------+\n");
 }
 
-void interact_with_tile(struct player *player, struct tile *current_tile, struct tile *map[3][3])
+void interact_with_tile(struct player *player, struct tile *current_tile, struct tile *map[10][10])
 {
   enum TILETYPE currentTileType = current_tile->type;
 
@@ -183,7 +212,7 @@ void interact_with_tile(struct player *player, struct tile *current_tile, struct
     while (storage_choice != 4)
     {
       // Clear screen and display frame
-      display_frame(player, current_tile);
+      display_frame(player, current_tile, map);
 
       printf("Storage Menu:\n");
       printf("1. View storage items\n");

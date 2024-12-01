@@ -26,10 +26,15 @@ enum TILETYPE
   CRATER,       // 13
   CANYON,       // 14
   MOUNTAIN,     // 15
-  DEFAULT
+
+  // misc
+  EMPTY // 16
 };
 
 extern const char *TILETYPE_NAMES[];
+
+// Enum for TILETYPE_MAP
+extern const char *TILETYPE_MAP_NAMES[];
 
 // Enum for COLLECTIBLETYPE
 enum COLLECTIBLETYPE

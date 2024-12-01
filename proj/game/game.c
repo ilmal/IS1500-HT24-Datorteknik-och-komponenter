@@ -8,16 +8,35 @@ const char *TILETYPE_NAMES[] = {
     "ENGINE_BAY",
     "LABORATORY",
     "AIRLOCK",
-    "LANDING_SITE",
+    "LANDING SITE",
     "WASTELAND",
-    "LOOSE_SOIL",
+    "LOOSE SOIL",
     "POND",
-    "SHARP_ROCKS",
+    "SHARP ROCKS",
     "CAVE",
     "CRATER",
     "CANYON",
     "MOUNTAIN",
-    "DEFAULT"};
+    ""};
+
+const char *TILETYPE_MAP_NAMES[] = {
+    "ST",
+    "CH",
+    "CO",
+    "CA",
+    "EB",
+    "LA",
+    "AL",
+    "LS",
+    "WL",
+    "LS",
+    "PO",
+    "SR",
+    "CV",
+    "CR",
+    "CA",
+    "MT",
+    "  "};
 
 const char *COLLECTIBLE_NAMES[] = {
     "Empty Slot",

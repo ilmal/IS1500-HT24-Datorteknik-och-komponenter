@@ -54,7 +54,7 @@ enum COLLECTIBLETYPE
   RSL_IMAGES,         // found in canyon
   ALIEN_BONES,        // found in cave
   OLD_ROVER_PARTS,    // found in wasteland (low chance)
-  ICE,                // found in somewhere
+  ICE,                // found in mountain
   FOOD,               // found in cafeteria
   BOTTLE_OF_WATER,    // found in cafeteria
 };
@@ -332,9 +332,8 @@ void add_to_inventory(struct player *player, enum COLLECTIBLETYPE item)
       return;
     }
   }
-}
-// If there is no empty slot
-printf("Your inventory is full! Cannot add more items.\n");
+  // If there is no empty slot
+  print("Your inventory is full! Cannot add more items.\n");
 }
 
 void remove_from_inventory(struct player *player, int index)

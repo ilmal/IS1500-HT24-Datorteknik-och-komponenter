@@ -41,8 +41,18 @@ enum COLLECTIBLETYPE
   ALIEN_BONES,        // 4
   OLD_ROVER_PARTS,    // 5
   ICE,                // 6
-  FOOD,               // 7
-  BOTTLE_OF_WATER     // 8
+
+  // essential stuff
+  FOOD,            // 7
+  BOTTLE_OF_WATER, // 8
+  FUEL,            // 9
+  MEDICAL_KIT,     // 10
+  TOOLBOX,         // 11
+  MAP,             // 12
+  SPARE_PARTS,     // 13
+  TEDDY_BEAR,      // 14
+  BLANKET,         // 15
+  CLOTHING         // 16
 };
 
 extern const char *COLLECTIBLE_NAMES[];

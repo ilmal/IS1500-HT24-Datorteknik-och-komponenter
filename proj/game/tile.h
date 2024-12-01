@@ -34,6 +34,13 @@ struct tile *laboratory();
 struct tile *airlock();
 struct tile *landing_site();
 struct tile *wasteland();
+struct tile *loose_soil();
+struct tile *pond();
+struct tile *sharp_rocks();
+struct tile *cave();
+struct tile *crater();
+struct tile *canyon();
+struct tile *mountain();
 struct tile *ct(enum TILETYPE type);
 
 #endif // TILE_H

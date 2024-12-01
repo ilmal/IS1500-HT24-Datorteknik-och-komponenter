@@ -10,6 +10,7 @@
 
 // Function prototype
 void display_frame(struct player *player, struct tile *current_tile);
+void interact_with_tile(struct player *player, struct tile *current_tile, struct tile *map[3][3]);
 
 // dropping stats
 void drop_stats(struct player *player, struct tile *current_tile)
@@ -168,6 +169,16 @@ void display_frame(struct player *player, struct tile *current_tile)
            player->inventory[i] != NONE ? COLLECTIBLE_NAMES[player->inventory[i]] : "Empty");
   }
   printf("+------------------------------------------------+\n");
+  printf("| Items in current tile:                         |\n");
+  for (int i = 0; i < STORAGE_SIZE; i++)
+  {
+    if (current_tile->storage[i] != NONE) // Only print non-empty slots
+    {
+      printf("|   Slot %d: %s                                    \n", i + 1,
+             COLLECTIBLE_NAMES[current_tile->storage[i]]);
+    }
+  }
+  printf("+------------------------------------------------+\n");
   printf("| %s\n", current_tile->interaction_text ? current_tile->interaction_text : "");
   printf("+------------------------------------------------+\n");
 }
@@ -188,7 +199,7 @@ void interact_with_tile(struct player *player, struct tile *current_tile, struct
       printf("Storage Menu:\n");
       printf("1. View storage items\n");
       printf("2. Transfer item from inventory to storage\n");
-      printf("3. Transfer item from storage to inventory\n");
+      printf("3. Retrieve item from storage to inventory\n");
       printf("4. Exit storage\n");
       printf("Enter your choice: ");
       scanf("%d", &storage_choice);
@@ -307,6 +318,117 @@ void interact_with_tile(struct player *player, struct tile *current_tile, struct
     else
     {
       printf("You did not grab any food.\n");
+    }
+  }
+  else if (currentTileType == ENGINE_BAY)
+  {
+    printf("Add fuel to the engine bay? (y/n)\n");
+    char add_fuel;
+    scanf("%c", &add_fuel);
+
+    if (add_fuel == 'y' || add_fuel == 'Y')
+    {
+      for (int i = 0; i < 5; i++)
+      {
+        if (player->inventory[i] == FUEL)
+        {
+          add_to_storage(current_tile, FUEL);
+          check_storage(player, current_tile);
+          remove_from_inventory(player, i);
+
+          printf("You have now added fuel to the engine bay.\n");
+          // TODO: add code to light up one LED on board
+        }
+        else
+        {
+          printf("You don't have any fuel in your inventory.\n");
+        }
+      }
+    }
+    else if (currentTileType == LABORATORY)
+    {
+      printf("You can interact with laboratory\n");
+      // add logic for creating water/fuel
+    }
+    else if (currentTileType == AIRLOCK)
+    {
+      printf("You are about to leave the ship, remember to keep an eye on the oxygen.\n");
+    }
+    else if (currentTileType == LANDING_SITE)
+    {
+      printf("You are right outside the ship now. \n");
+    }
+    else if (currentTileType == WASTELAND)
+    {
+      printf("");
+    }
+    else if (currentTileType == LOOSE_SOIL)
+    {
+      printf("Uh oh, it took a lot of energy to get out of the loose soil.\n");
+    }
+    else if (currentTileType == POND)
+    {
+      char discover_pond;
+      printf("You see a large ice pond, maybe there is life? Do you want to discover? (y/n) \n");
+      scanf("%c", &discover_pond);
+      if (discover_pond == 'y' || discover_pond == 'Y')
+      {
+        printf("You look around and find some tardigrades! You collect them.\n");
+        add_to_inventory(player, TARDIGRADES);
+        remove_from_storage(current_tile, 1);
+      }
+    }
+  }
+  else if (currentTileType == SHARP_ROCKS)
+  {
+    printf("Oh no, the sharp rocks cracked up one of your oxygen tanks, you only have half of the oxygen left!\n");
+  }
+  else if (currentTileType == CAVE)
+  {
+    printf("You enter a dark cave, do you want to discover more? (y/n)\n");
+    char discover_cave;
+    scanf("%c", &discover_cave);
+    if (discover_cave == 'y' || discover_cave == 'Y')
+    {
+      printf("You found some alien bones and collected them. \n");
+      add_to_inventory(player, ALIEN_BONES);
+      remove_from_storage(current_tile, 1);
+    }
+  }
+  else if (currentTileType == CRATER)
+  {
+    char discover_crater;
+    printf("You are in a crater, want to discover some more? (y/n) \n");
+    scanf("%c", &discover_crater);
+    if (discover_crater == 'y' || discover_crater == 'Y')
+    {
+      printf("You found found interesting sediments and collected some samples. \n");
+      add_to_inventory(player, SEDIMENTARY_LAYERS);
+      remove_from_storage(current_tile, 1);
+    }
+  }
+  else if (currentTileType == CANYON)
+  {
+    char discover_canyon;
+    printf("You are in a large canyon, want to see what lies here? (y/n) \n");
+    scanf("%c", &discover_canyon);
+    if (discover_canyon == 'y' || discover_canyon == 'Y')
+    {
+      printf("You find interesting RSL trails, you collect some images. \n");
+      add_to_inventory(player, RSL_IMAGES);
+      remove_from_storage(current_tile, 1);
+    }
+  }
+  else if (currentTileType == MOUNTAIN)
+  {
+    char discover_mountain;
+    printf("You are on top a big mountain, want to discover? (y/n) \n");
+    scanf("%c", &discover_mountain);
+    if (discover_mountain == 'y' || discover_mountain == 'Y')
+    {
+      printf("You find some ice samples and collect them. \n");
+      add_to_inventory(player, ICE);
+      remove_from_storage(current_tile, 1);
     }
   }
   else

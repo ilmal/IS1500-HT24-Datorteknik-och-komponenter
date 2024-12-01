@@ -27,5 +27,14 @@ const char *COLLECTIBLE_NAMES[] = {
     "Alien Bones",
     "Old Rover Parts",
     "Ice",
+
     "Food",
-    "Bottle of Water"};
+    "Bottle of Water",
+    "Fuel",
+    "Medical kit",
+    "Toolbox",
+    "Map",
+    "Spare parts",
+    "Teddy bear",
+    "Blanket",
+    "Clothing"};

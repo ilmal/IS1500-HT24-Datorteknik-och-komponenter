@@ -11,11 +11,11 @@ struct tile *storage()
   storage_tile->interactable = 1;
   storage_tile->interaction_text = "You are in the storage room which holds your food and scientific samples - you can store your inventory here.";
   storage_tile->outside_rocket = 0;
-  memset(storage_tile->storage, 0, sizeof(storage_tile->storage));
+  memset(storage_tile->storage, 0, sizeof(storage_tile->storage)); // fyller ut storage med nollor
 
   // default items in the storage:
   storage_tile->storage[0] = FOOD;
-  storage_tile->storage[1] = BOTTLE_OF_WATER;
+  storage_tile->storage[1] = FUEL;
 
   return storage_tile;
 }
@@ -59,7 +59,9 @@ struct tile *engine_bay()
   struct tile *engine_bay_tile = malloc(sizeof(struct tile));
   engine_bay_tile->type = ENGINE_BAY;
   engine_bay_tile->outside_rocket = 0;
-  // TODO: power up map minigame stuff
+
+  // fyller ut storage i engine bay med nollor
+  memset(engine_bay_tile->storage, 0, sizeof(engine_bay_tile->storage));
 
   return engine_bay_tile;
 }
@@ -81,7 +83,6 @@ struct tile *airlock()
   struct tile *airlock_tile = malloc(sizeof(struct tile));
   airlock_tile->type = AIRLOCK;
   airlock_tile->outside_rocket = 0;
-  // TODO: refill oxygen logic
 
   return airlock_tile;
 }
@@ -124,6 +125,8 @@ struct tile *pond()
   pond_tile->outside_rocket = 1;
   pond_tile->collectible = TARDIGRADES;
 
+  pond_tile->storage[0] = TARDIGRADES;
+
   return pond_tile;
 }
 
@@ -143,6 +146,8 @@ struct tile *cave()
   struct tile *cave_tile = malloc(sizeof(struct tile));
   cave_tile->type = CAVE;
   cave_tile->outside_rocket = 1;
+  cave_tile->collectible = ALIEN_BONES;
+  cave_tile->storage[0] = ALIEN_BONES;
 
   return cave_tile;
 }
@@ -154,6 +159,7 @@ struct tile *crater()
   crater_tile->type = CRATER;
   crater_tile->outside_rocket = 1;
   crater_tile->collectible = SEDIMENTARY_LAYERS;
+  crater_tile->storage[0] = SEDIMENTARY_LAYERS;
 
   return crater_tile;
 }
@@ -164,6 +170,7 @@ struct tile *canyon()
   canyon_tile->type = CANYON;
   canyon_tile->outside_rocket = 1;
   canyon_tile->collectible = RSL_IMAGES;
+  canyon_tile->storage[0] = RSL_IMAGES;
 
   return canyon_tile;
 }
@@ -174,6 +181,8 @@ struct tile *mountain()
   struct tile *mountain_tile = malloc(sizeof(struct tile));
   mountain_tile->type = MOUNTAIN;
   mountain_tile->outside_rocket = 1;
+  mountain_tile->collectible = ICE;
+  mountain_tile->storage[0] = ICE;
 
   return mountain_tile;
 }

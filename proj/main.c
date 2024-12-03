@@ -1,43 +1,45 @@
+#include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <unistd.h> // For usleep
-#include <string.h>
+#include <stddef.h>
 
 #include "game.h"
 #include "tile.h"
 #include "player.h"
 #include "inventory.h"
 
+extern void print(const char *);
+
 // Function prototype
-void interact_with_tile(struct player *player, struct tile *current_tile, struct tile *map[10][10]);
-void display_frame(struct player *player, struct tile *current_tile, struct tile *map[10][10]);
+void interact_with_tile(struct player player, struct tile current_tile, struct tile map[10][10]);
+void display_frame(struct player player, struct tile current_tile, struct tile map[10][10]);
 
 // dropping stats
-void drop_stats(struct player *player, struct tile *current_tile)
+void drop_stats(struct player player, struct tile current_tile)
 {
-  if (current_tile->outside_rocket == 1)
+  if (current_tile.outside_rocket == 1)
   {
-    player->oxygen -= 1;
+    player.oxygen -= 1;
   }
-  else if (current_tile->outside_rocket == 0)
+  else if (current_tile.outside_rocket == 0)
   {
-    player->oxygen = 100;
+    player.oxygen = 100;
   }
-  player->water -= 1;
-  player->food -= 1;
+  player.water -= 1;
+  player.food -= 1;
 
   // Check if any stat reaches 0
-  if (player->oxygen <= 0)
+  if (player.oxygen <= 0)
   {
     printf("You have run out of oxygen! Game over. \n");
     exit(0);
   }
-  if (player->water <= 0)
+  if (player.water <= 0)
   {
     printf("You have run out of water! Game over. \n");
     exit(0);
   }
-  if (player->food <= 0)
+  if (player.food <= 0)
   {
     printf("You have run out of food! Game over. \n");
     exit(0);
@@ -46,29 +48,58 @@ void drop_stats(struct player *player, struct tile *current_tile)
 
 int main()
 {
+  print("IM IN DISPLAY FRAME \n");
+
+  ct(POND);
+  ct(STORAGE);
+  ct(CHAMBERS);
+  ct(COCKPIT);
+  ct(CAFETERIA);
+  print("3");
+  ct(ENGINE_BAY);
+  print("4");
+  ct(LABORATORY);
+  ct(AIRLOCK);
+  print("1");
+  ct(LANDING_SITE);
+  ct(WASTELAND);
+  ct(LOOSE_SOIL);
+  ct(POND);
+  ct(SHARP_ROCKS);
+  ct(CAVE);
+  ct(CRATER);
+  ct(CANYON);
+  ct(MOUNTAIN);
+
+  print("POND CREATED");
   // clang-format off
-  struct tile *map[10][10] = {
-      {ct(WASTELAND), ct(WASTELAND),  ct(WASTELAND),  ct(WASTELAND), ct(WASTELAND), ct(WASTELAND), ct(WASTELAND), ct(WASTELAND), ct(WASTELAND), ct(WASTELAND)},
-      {ct(WASTELAND), ct(WASTELAND),  ct(WASTELAND),  ct(WASTELAND), ct(WASTELAND), ct(WASTELAND), ct(WASTELAND), ct(WASTELAND), ct(WASTELAND), ct(WASTELAND)},
-      {ct(EMPTY),     ct(EMPTY),      ct(EMPTY),      ct(WASTELAND), ct(WASTELAND), ct(WASTELAND), ct(WASTELAND), ct(WASTELAND), ct(WASTELAND), ct(WASTELAND)},
-      {ct(CHAMBERS),  ct(COCKPIT),    ct(EMPTY),      ct(WASTELAND), ct(WASTELAND), ct(WASTELAND), ct(WASTELAND), ct(WASTELAND), ct(WASTELAND), ct(WASTELAND)},
-      {ct(CAFETERIA), ct(STORAGE),    ct(AIRLOCK),    ct(WASTELAND), ct(WASTELAND), ct(WASTELAND), ct(WASTELAND), ct(WASTELAND), ct(WASTELAND), ct(WASTELAND)},
-      {ct(ENGINE_BAY),ct(LABORATORY), ct(EMPTY),      ct(WASTELAND), ct(WASTELAND), ct(WASTELAND), ct(WASTELAND), ct(WASTELAND), ct(WASTELAND), ct(WASTELAND)},
-      {ct(EMPTY),     ct(EMPTY),      ct(EMPTY),      ct(WASTELAND), ct(WASTELAND), ct(WASTELAND), ct(WASTELAND), ct(WASTELAND), ct(WASTELAND), ct(WASTELAND)},
-      {ct(WASTELAND), ct(WASTELAND),  ct(WASTELAND),  ct(WASTELAND), ct(WASTELAND), ct(WASTELAND), ct(WASTELAND), ct(WASTELAND), ct(WASTELAND), ct(WASTELAND)},
-      {ct(WASTELAND), ct(WASTELAND),  ct(WASTELAND),  ct(WASTELAND), ct(WASTELAND), ct(WASTELAND), ct(WASTELAND), ct(WASTELAND), ct(WASTELAND), ct(WASTELAND)},
-      {ct(WASTELAND), ct(WASTELAND),  ct(WASTELAND),  ct(WASTELAND), ct(WASTELAND), ct(WASTELAND), ct(WASTELAND), ct(WASTELAND), ct(WASTELAND), ct(WASTELAND)},
+  struct tile map[10][10] = {
+      {ct(POND), ct(LOOSE_SOIL),  ct(WASTELAND),  ct(WASTELAND), ct(WASTELAND), ct(POND), ct(WASTELAND), ct(WASTELAND), ct(MOUNTAIN), ct(POND)},
+      {ct(SHARP_ROCKS), ct(WASTELAND),  ct(WASTELAND),  ct(WASTELAND), ct(WASTELAND), ct(WASTELAND), ct(POND), ct(WASTELAND), ct(MOUNTAIN), ct(CANYON)},
+      {ct(EMPTY),     ct(EMPTY),      ct(EMPTY),      ct(WASTELAND), ct(WASTELAND), ct(WASTELAND), ct(WASTELAND), ct(WASTELAND), ct(MOUNTAIN), ct(CANYON)},
+      {ct(CHAMBERS),  ct(COCKPIT),    ct(EMPTY),      ct(WASTELAND), ct(WASTELAND), ct(WASTELAND), ct(SHARP_ROCKS), ct(POND), ct(MOUNTAIN), ct(WASTELAND)},
+      {ct(CAFETERIA), ct(STORAGE),    ct(AIRLOCK),    ct(LANDING_SITE), ct(WASTELAND), ct(WASTELAND), ct(WASTELAND), ct(WASTELAND), ct(MOUNTAIN), ct(LOOSE_SOIL)},
+      {ct(ENGINE_BAY),ct(LABORATORY), ct(EMPTY),      ct(WASTELAND), ct(WASTELAND), ct(LOOSE_SOIL), ct(WASTELAND), ct(WASTELAND), ct(MOUNTAIN), ct(WASTELAND)},
+      {ct(EMPTY),     ct(EMPTY),      ct(EMPTY),      ct(SHARP_ROCKS), ct(WASTELAND), ct(WASTELAND), ct(WASTELAND), ct(WASTELAND), ct(SHARP_ROCKS), ct(WASTELAND)},
+      {ct(WASTELAND), ct(WASTELAND),  ct(LOOSE_SOIL),  ct(WASTELAND), ct(WASTELAND), ct(CANYON), ct(WASTELAND), ct(WASTELAND), ct(MOUNTAIN), ct(WASTELAND)},
+      {ct(CRATER), ct(WASTELAND),  ct(WASTELAND),  ct(MOUNTAIN), ct(MOUNTAIN), ct(WASTELAND), ct(MOUNTAIN), ct(MOUNTAIN), ct(MOUNTAIN), ct(POND)},
+      {ct(CAVE), ct(WASTELAND),  ct(WASTELAND),  ct(MOUNTAIN), ct(POND), ct(WASTELAND), ct(WASTELAND), ct(CANYON), ct(MOUNTAIN), ct(POND)},
   };
 
-  struct player *player = create_player();
+  print("IM IN DISPLAY FRAME");
+
+  struct player player = create_player();
 
   int running = 1;
   while (running)
   {
     // Get the current tile based on player's position
-    struct tile *current_tile = map[player->positionY][player->positionX];
+    struct tile current_tile = map[player.positionY][player.positionX];
 
-    drop_stats(player, map[player->positionY][player->positionX]);
+    print("IM IN LOOPc");
+
+
+    drop_stats(player, map[player.positionY][player.positionX]);
 
     // Display the frame
     display_frame(player, current_tile, map);
@@ -98,8 +129,8 @@ int main()
       scanf("%d", &direction);
       while (getchar() != '\n');
 
-      int new_positionX = player->positionX;
-      int new_positionY = player->positionY;
+      int new_positionX = player.positionX;
+      int new_positionY = player.positionY;
 
       // Move the player
       if (direction == 1)
@@ -120,10 +151,10 @@ int main()
       }
       
       // Check if the new position is within bounds
-      if (new_positionX >= 0 && new_positionX < 10 && new_positionY >= 0 && new_positionY < 10 && map[new_positionY][new_positionX]->type != EMPTY)
+      if (new_positionX >= 0 && new_positionX < 10 && new_positionY >= 0 && new_positionY < 10 && map[new_positionY][new_positionX].type != EMPTY)
       {
-        player->positionX = new_positionX;
-        player->positionY = new_positionY;
+        player.positionX = new_positionX;
+        player.positionY = new_positionY;
       }
       else
       {
@@ -159,7 +190,7 @@ int main()
   }
 }
 
-void display_frame(struct player *player, struct tile *current_tile, struct tile *map[10][10])
+void display_frame(struct player player, struct tile current_tile, struct tile map[10][10])
 {
   // Clear the screen using ANSI escape code
   printf("\033[2J");
@@ -171,8 +202,8 @@ void display_frame(struct player *player, struct tile *current_tile, struct tile
   printf("+------------------------------------------------+ \n");
   printf("|            MARS SURVIVAL GAME                  | \n");
   printf("+------------------------------------------------+ \n");
-  printf("| Position: (%d, %d)                               \n", player->positionX, player->positionY);
-  printf("| Location: %s                                     \n", TILETYPE_NAMES[current_tile->type]);
+  printf("| Position: (%d, %d)                               \n", player.positionX, player.positionY);
+  printf("| Location: %s                                     \n", TILETYPE_NAMES[current_tile.type]);
   printf("+------------------------------------------------+ \n");
   printf("| Map:                                             \n");
   for (int y = 0; y < 10; y++)
@@ -180,13 +211,13 @@ void display_frame(struct player *player, struct tile *current_tile, struct tile
     printf("| ");
     for (int x = 0; x < 10; x++)
     {
-      if (player->positionX == x && player->positionY == y)
+      if (player.positionX == x && player.positionY == y)
       {
-        printf("[PL] ");
+        printf("[🫵 ] ");
       }
       else
       {
-        printf("[%s] ", TILETYPE_MAP_NAMES[map[y][x]->type]);
+        printf("[%s] ", TILETYPE_MAP_NAMES[map[y][x].type]);
       }
     }
     printf("\n");
@@ -195,30 +226,30 @@ void display_frame(struct player *player, struct tile *current_tile, struct tile
   for (int i = 0; i < INVENTORY_SIZE; i++)
   {
     printf("|   Slot %d: %s                                    \n", i + 1,
-           player->inventory[i] != NONE ? COLLECTIBLE_NAMES[player->inventory[i]] : "Empty");
+           player.inventory[i] != NONE ? COLLECTIBLE_NAMES[player.inventory[i]] : "Empty");
   }
   printf("+------------------------------------------------+\n");
   printf("| Items in current tile:                         |\n");
   for (int i = 0; i < STORAGE_SIZE; i++)
   {
-    if (current_tile->storage[i] != NONE) // Only print non-empty slots
+    if (current_tile.storage[i] != NONE) // Only print non-empty slots
     {
       printf("|   Slot %d: %s                                    \n", i + 1,
-             COLLECTIBLE_NAMES[current_tile->storage[i]]);
+             COLLECTIBLE_NAMES[current_tile.storage[i]]);
     }
   }
   printf("+------------------------------------------------+\n");
-  printf("| %s\n", current_tile->interaction_text ? current_tile->interaction_text : "");
+  printf("| %s\n", current_tile.interaction_text ? current_tile.interaction_text : "");
   printf("+------------------------------------------------+\n");
 }
 
-void interact_with_tile(struct player *player, struct tile *current_tile, struct tile *map[10][10])
+void interact_with_tile(struct player player, struct tile current_tile, struct tile map[10][10])
 {
-  enum TILETYPE currentTileType = current_tile->type;
+  enum TILETYPE currentTileType = current_tile.type;
 
   if (currentTileType == STORAGE)
   {
-    struct tile *storage_tile = current_tile;
+    struct tile storage_tile = current_tile;
     int storage_choice = 0;
     while (storage_choice != 4)
     {
@@ -249,7 +280,7 @@ void interact_with_tile(struct player *player, struct tile *current_tile, struct
         for (int i = 0; i < INVENTORY_SIZE; i++)
         {
           printf("Slot %d: %s\n", i + 1,
-                 player->inventory[i] != NONE ? COLLECTIBLE_NAMES[player->inventory[i]] : "Empty");
+                 player.inventory[i] != NONE ? COLLECTIBLE_NAMES[player.inventory[i]] : "Empty");
         }
         printf("Enter the inventory slot number to transfer to storage (or 0 to cancel): ");
         int inv_slot;
@@ -258,7 +289,7 @@ void interact_with_tile(struct player *player, struct tile *current_tile, struct
           ;
         if (inv_slot > 0 && inv_slot <= INVENTORY_SIZE)
         {
-          enum COLLECTIBLETYPE item = player->inventory[inv_slot - 1];
+          enum COLLECTIBLETYPE item = player.inventory[inv_slot - 1];
           if (item != NONE)
           {
             add_to_storage(storage_tile, item);
@@ -280,9 +311,9 @@ void interact_with_tile(struct player *player, struct tile *current_tile, struct
         printf("Storage items:\n");
         for (int i = 0; i < STORAGE_SIZE; i++)
         {
-          if (storage_tile->storage[i] != NONE)
+          if (storage_tile.storage[i] != NONE)
           {
-            printf("Slot %d: %s\n", i + 1, COLLECTIBLE_NAMES[storage_tile->storage[i]]);
+            printf("Slot %d: %s\n", i + 1, COLLECTIBLE_NAMES[storage_tile.storage[i]]);
           }
         }
         printf("Enter the storage slot number to transfer to inventory (or 0 to cancel): ");
@@ -292,7 +323,7 @@ void interact_with_tile(struct player *player, struct tile *current_tile, struct
           ;
         if (storage_slot > 0 && storage_slot <= STORAGE_SIZE)
         {
-          enum COLLECTIBLETYPE item = storage_tile->storage[storage_slot - 1];
+          enum COLLECTIBLETYPE item = storage_tile.storage[storage_slot - 1];
           if (item != NONE)
           {
             add_to_inventory(player, item);
@@ -359,7 +390,7 @@ void interact_with_tile(struct player *player, struct tile *current_tile, struct
     {
       for (int i = 0; i < 5; i++)
       {
-        if (player->inventory[i] == FUEL)
+        if (player.inventory[i] == FUEL)
         {
           add_to_storage(current_tile, FUEL);
           check_storage(player, current_tile);
@@ -389,7 +420,7 @@ void interact_with_tile(struct player *player, struct tile *current_tile, struct
     }
     else if (currentTileType == WASTELAND)
     {
-      printf("");
+      printf("You are in the harsh martian wasteland.\n");
     }
     else if (currentTileType == LOOSE_SOIL)
     {
@@ -464,4 +495,10 @@ void interact_with_tile(struct player *player, struct tile *current_tile, struct
   {
     printf("There is nothing to interact with here.\n");
   }
+}
+
+
+void handle_interrupt(void) {
+    // Implement your interrupt handling logic here
+    printf("Interrupt handled\n");
 }

@@ -25,22 +25,23 @@ struct tile
 };
 
 // Function prototypes
-struct tile *storage();
-struct tile *chambers();
-struct tile *cockpit();
-struct tile *cafeteria();
-struct tile *engine_bay();
-struct tile *laboratory();
-struct tile *airlock();
-struct tile *landing_site();
-struct tile *wasteland();
-struct tile *loose_soil();
-struct tile *pond();
-struct tile *sharp_rocks();
-struct tile *cave();
-struct tile *crater();
-struct tile *canyon();
-struct tile *mountain();
-struct tile *ct(enum TILETYPE type);
+struct tile storage();
+struct tile chambers();
+struct tile cockpit();
+struct tile cafeteria();
+struct tile engine_bay();
+struct tile laboratory();
+struct tile airlock();
+struct tile landing_site();
+struct tile wasteland();
+struct tile loose_soil();
+struct tile pond();
+struct tile sharp_rocks();
+struct tile cave();
+struct tile crater();
+struct tile canyon();
+struct tile mountain();
+struct tile empty();
+struct tile ct(enum TILETYPE type);
 
 #endif // TILE_H

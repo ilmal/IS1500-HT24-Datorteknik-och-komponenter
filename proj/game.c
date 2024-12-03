@@ -20,22 +20,22 @@ const char *TILETYPE_NAMES[] = {
     ""};
 
 const char *TILETYPE_MAP_NAMES[] = {
-    "ST",
-    "CH",
-    "CO",
-    "CA",
-    "EB",
-    "LA",
-    "AL",
-    "LS",
-    "WL",
-    "LS",
-    "PO",
-    "SR",
-    "CV",
-    "CR",
-    "CA",
-    "MT",
+    "📦",
+    "🛏️ ",
+    "🚀",
+    "🥡",
+    "💨",
+    "🧪",
+    "🚪",
+    "📍",
+    "🏜️ ",
+    "⏳",
+    "🧊",
+    "🪨 ",
+    "🦇",
+    "🕳️ ",
+    "🧗",
+    "⛰️ ",
     "  "};
 
 const char *COLLECTIBLE_NAMES[] = {

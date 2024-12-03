@@ -1,18 +1,26 @@
 SRC_DIR ?= ./
-OBJ_DIR ?= ./
 SOURCES ?= $(shell find $(SRC_DIR) -name '*.c' -or -name '*.S')
-OBJECTS ?= $(addsuffix .o, $(basename $(notdir $(SOURCES))))
+OBJECTS ?= $(notdir $(SOURCES))
+OBJECTS := $(OBJECTS:.c=.o)
+OBJECTS := $(OBJECTS:.S=.o)
 LINKER ?= $(SRC_DIR)/dtekv-script.lds
 
 TOOLCHAIN ?= riscv32-unknown-elf-
 CFLAGS ?= -Wall -O3 -mabi=ilp32 -march=rv32imzicsr
-LDFLAGS ?= -lc -lgcc  # Adjust as needed
+
+# Exclude boot.o from OBJECTS to prevent multiple definitions
+OBJECTS_NO_BOOT := $(filter-out boot.o,$(OBJECTS))
 
 build: clean main.bin
 
-main.elf:
-	$(TOOLCHAIN)gcc $(CFLAGS) -c $(SOURCES)
-	$(TOOLCHAIN)gcc $(CFLAGS) -T $(LINKER) -o $@ $(OBJECTS) softfloat.a $(LDFLAGS)
+main.elf: $(OBJECTS)
+	$(TOOLCHAIN)gcc -nostartfiles -o $@ boot.o -T $(LINKER) $(OBJECTS_NO_BOOT) softfloat.a -lc -lgcc
+
+%.o: $(SRC_DIR)/%.c
+	$(TOOLCHAIN)gcc -c $(CFLAGS) -o $@ $<
+
+%.o: $(SRC_DIR)/%.S
+	$(TOOLCHAIN)gcc -c $(CFLAGS) -o $@ $<
 
 main.bin: main.elf
 	$(TOOLCHAIN)objcopy --output-target binary $< $@

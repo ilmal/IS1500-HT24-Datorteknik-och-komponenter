@@ -1,3 +1,3 @@
 rm -r game_binary
-gcc -Wall -Wextra -o game_binary game/main.c game/tile.c game/player.c game/inventory.c game/game.c
+gcc -Wall -Wextra -o game_binary main.c tile.c player.c inventory.c game.c
 ./game_binary

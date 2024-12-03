@@ -13,6 +13,6 @@ struct player
   int water;
 };
 
-struct player *create_player();
+struct player create_player();
 
 #endif // PLAYER_H

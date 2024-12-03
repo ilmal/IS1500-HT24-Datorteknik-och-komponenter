@@ -66,8 +66,11 @@ struct tile engine_bay()
   engine_bay_tile.type = ENGINE_BAY;
   engine_bay_tile.outside_rocket = 0;
 
-  // fyller ut storage i engine bay med nollor
-  memset(engine_bay_tile.storage, 0, sizeof(engine_bay_tile.storage));
+  // fyller ut engine_bay_tile storage med nollor (memset fast coolare)
+  for (int i = 0; i < 10; i++)
+  {
+    engine_bay_tile.storage[i] = 0;
+  }
 
   return engine_bay_tile;
 }

@@ -2,6 +2,7 @@
 #include "tile.h"
 #include "player.h"
 #include "inventory.h"
+#include "board_io.h"
 
 // Function prototypes
 void interact_with_tile(struct player player, struct tile current_tile, struct tile map[10][10]);
@@ -13,107 +14,175 @@ extern void print(const char *);
 // Custom function to convert integer to string
 void int_to_str(int num, char *str)
 {
-  int i = 0;
-  int is_negative = 0;
-  char temp[12]; // Enough for an integer
+    int i = 0;
+    int is_negative = 0;
+    char temp[12];
 
-  if (num == 0)
-  {
-    str[i++] = '0';
-    str[i] = '\0';
-    return;
-  }
+    if (num == 0)
+    {
+        str[i++] = '0';
+        str[i] = '\0';
+        return;
+    }
 
-  if (num < 0)
-  {
-    is_negative = 1;
-    num = -num;
-  }
+    if (num < 0)
+    {
+        is_negative = 1;
+        num = -num;
+    }
 
-  while (num != 0)
-  {
-    temp[i++] = (num % 10) + '0';
-    num /= 10;
-  }
+    while (num != 0)
+    {
+        temp[i++] = (num % 10) + '0';
+        num /= 10;
+    }
 
-  if (is_negative)
-  {
-    temp[i++] = '-';
-  }
+    if (is_negative)
+    {
+        temp[i++] = '-';
+    }
 
-  int j = 0;
-  // Reverse the string
-  while (i > 0)
-  {
-    str[j++] = temp[--i];
-  }
-  str[j] = '\0';
+    int j = 0;
+    // Reverse the string
+    while (i > 0)
+    {
+        str[j++] = temp[--i];
+    }
+    str[j] = '\0';
 }
 
 // Custom function to concatenate strings
 void append_str(char *dest, const char *src)
 {
-  while (*dest)
-    dest++;
-  while (*src)
-  {
-    *dest = *src;
-    dest++;
-    src++;
-  }
-  *dest = '\0';
+    while (*dest)
+        dest++;
+    while (*src)
+    {
+        *dest = *src;
+        dest++;
+        src++;
+    }
+    *dest = '\0';
 }
 
 // Custom function to get the length of a string
 int str_length(const char *str)
 {
-  int len = 0;
-  while (str[len])
-    len++;
-  return len;
+    int len = 0;
+    while (str[len])
+        len++;
+    return len;
 }
 
 // Dropping stats
-void drop_stats(struct player player, struct tile current_tile)
+void drop_stats(struct player *player, struct tile current_tile)
 {
-  if (current_tile.outside_rocket == 1)
-  {
-    player.oxygen -= 1;
-  }
-  else if (current_tile.outside_rocket == 0)
-  {
-    player.oxygen = 100;
-  }
-  player.water -= 1;
-  player.food -= 1;
+    if (current_tile.outside_rocket == 1)
+    {
+        player->oxygen -= 1;
+    }
+    else if (current_tile.outside_rocket == 0)
+    {
+        player->oxygen = 100;
+    }
+    player->water -= 1;
+    player->food -= 1;
 
-  // Check if any stat reaches 0
-  if (player.oxygen <= 0)
-  {
-    print("You have run out of oxygen! Game over.\n");
-    // Implement your own exit function if needed
-    // exit(0);
-    return;
-  }
-  if (player.water <= 0)
-  {
-    print("You have run out of water! Game over.\n");
-    // exit(0);
-    return;
-  }
-  if (player.food <= 0)
-  {
-    print("You have run out of food! Game over.\n");
-    // exit(0);
-    return;
-  }
+    // Check if any stat reaches 0
+    if (player->oxygen <= 0)
+    {
+        print("You have run out of oxygen! Game over.\n");
+        // Implement your own exit or game over logic
+        while (1)
+            ; // Halt execution
+    }
+    if (player->water <= 0)
+    {
+        print("You have run out of water! Game over.\n");
+        while (1)
+            ;
+    }
+    if (player->food <= 0)
+    {
+        print("You have run out of food! Game over.\n");
+        while (1)
+            ;
+    }
 }
+
+#define SWITCH_EAST (1 << 0)  // Bit 0
+#define SWITCH_WEST (1 << 1)  // Bit 1
+#define SWITCH_SOUTH (1 << 2) // Bit 2
+#define SWITCH_NORTH (1 << 3) // Bit 3
+
+#define SWITCH_INTERACT (1 << 9) // Bit 9
+
+void handle_input(int switch_values, struct player *player, struct tile map[10][10])
+{
+    int new_positionX = player->positionX;
+    int new_positionY = player->positionY;
+    int moved = 0; // Flag to check if movement occurred
+
+    // if interact is on, dont move, just interact
+    if (switch_values & SWITCH_INTERACT)
+    {
+        interact_with_tile(*player, map[player->positionY][player->positionX], map);
+        return;
+    }
+
+    // Move East
+    if (switch_values & SWITCH_EAST)
+    {
+        new_positionX += 1;
+        moved = 1;
+    }
+
+    // Move West
+    if (switch_values & SWITCH_WEST)
+    {
+        new_positionX -= 1;
+        moved = 1;
+    }
+
+    // Move South
+    if (switch_values & SWITCH_SOUTH)
+    {
+        new_positionY += 1;
+        moved = 1;
+    }
+
+    // Move North
+    if (switch_values & SWITCH_NORTH)
+    {
+        new_positionY -= 1;
+        moved = 1;
+    }
+
+    // If any movement occurred, update the player's position
+    if (moved)
+    {
+        // Check if the new position is within bounds and valid
+        if (new_positionX >= 0 && new_positionX < 10 &&
+            new_positionY >= 0 && new_positionY < 10 &&
+            map[new_positionY][new_positionX].type != EMPTY &&
+            map[new_positionX][new_positionY].type != MOUNTAIN)
+        {
+            player->positionX = new_positionX;
+            player->positionY = new_positionY;
+        }
+        else
+        {
+            print("You cannot move in that direction.\n");
+        }
+    }
+}
+
+int current_display = 0;
 
 int main()
 {
-  print("IM IN DISPLAY FRAME \n");
-
-  // clang-format off
+    labinit();
+    // clang-format off
     struct tile map[10][10] = {
         {ct(POND), ct(LOOSE_SOIL),  ct(WASTELAND),  ct(WASTELAND), ct(WASTELAND), ct(POND), ct(WASTELAND), ct(WASTELAND), ct(MOUNTAIN), ct(POND)},
         {ct(SHARP_ROCKS), ct(WASTELAND),  ct(WASTELAND),  ct(WASTELAND), ct(WASTELAND), ct(WASTELAND), ct(POND), ct(WASTELAND), ct(MOUNTAIN), ct(CANYON)},
@@ -126,140 +195,97 @@ int main()
         {ct(CRATER), ct(WASTELAND),  ct(WASTELAND),  ct(MOUNTAIN), ct(MOUNTAIN), ct(WASTELAND), ct(MOUNTAIN), ct(MOUNTAIN), ct(MOUNTAIN), ct(POND)},
         {ct(CAVE), ct(WASTELAND),  ct(WASTELAND),  ct(MOUNTAIN), ct(POND), ct(WASTELAND), ct(WASTELAND), ct(CANYON), ct(MOUNTAIN), ct(POND)},
     };
+    // clang-format on
 
     struct player player = create_player();
 
-    int running = 1;
-    while (running)
+    // Initial display
+    struct tile current_tile = map[player.positionY][player.positionX];
+    display_frame(player, current_tile, map);
+
+    while (1)
     {
-        // Get the current tile based on player's position
-        struct tile current_tile = map[player.positionY][player.positionX];
-
-        print("IM IN LOOP\n");
-
-        drop_stats(player, current_tile);
-
-        // Display the frame
-        display_frame(player, current_tile, map);
-
-        // Handle user input
-        print("What would you like to do? (write a number)\n");
-        print("1. Move\n");
-        print("2. Interact\n");
-        print("3. Quit\n");
-        print("Enter your choice: ");
-
-        int choice = 0;
-        // Implement your own input function here
-        // For example, read input from a specific hardware register or buffer
-        // choice = your_input_function();
-        // For demonstration purposes, we'll assume choice is set somehow
-
-        // Placeholder for input
-        // Remove this line and implement your own input mechanism
-        choice = 1; // Default choice for testing
-
-        if (choice == 1)
+        // Process Switch Events
+        if (switch_event)
         {
-            // Movement code...
-            print("Which direction would you like to move?\n");
-            print("1. North\n");
-            print("2. East\n");
-            print("3. South\n");
-            print("4. West\n");
-            print("Enter direction: ");
-            int direction = 0;
+            switch_event = 0; // Reset the flag
 
-            // direction = your_input_function();
-            direction = 1; // Default direction for testing
+            int switch_values = get_sw();
+            handle_input(switch_values, &player, map);
 
-            int new_positionX = player.positionX;
-            int new_positionY = player.positionY;
+            // Update the current tile after movement
+            current_tile = map[player.positionY][player.positionX];
 
-            // Move the player
-            if (direction == 1)
-            {
-                new_positionY -= 1;
-            }
-            else if (direction == 2)
-            {
-                new_positionX += 1;
-            }
-            else if (direction == 3)
-            {
-                new_positionY += 1;
-            }
-            else if (direction == 4)
-            {
-                new_positionX -= 1;
-            }
+            // Update the game state (e.g., drop stats)
+            drop_stats(&player, current_tile);
 
-            // Check if the new position is within bounds
-            if (new_positionX >= 0 && new_positionX < 10 && new_positionY >= 0 && new_positionY < 10 && map[new_positionY][new_positionX].type != EMPTY)
-            {
-                player.positionX = new_positionX;
-                player.positionY = new_positionY;
-            }
-            else
-            {
-                print("You cannot move in that direction.\n");
-            }
+            // Display the updated game frame
+            display_frame(player, current_tile, map);
         }
-        else if (choice == 2)
+
+        // Process Timer Events
+        if (timer_event)
         {
-            // Interaction code...
-            interact_with_tile(player, current_tile, map);
+            timer_event = 0; // Reset the flag
+            drop_stats(&player, current_tile);
         }
-        else if (choice == 3)
-        {
-            print("Are you sure you want to quit the game? yes/no\n");
-            running = 0; // temp for dev
 
-            // Implement your own input function to read a string
-            // For demonstration, we'll assume the user said "yes"
-            char confirmation[4] = "yes";
-
-            if (string_compare(confirmation, "yes") == 0)
-            {
-                print("Quitting game...\n");
-                running = 0;
-            }
-            else
-            {
-                print("Continuing the game...\n");
-            }
-        }
-        else
+        // Process Button Events
+        if (button_event)
         {
-            print("Invalid choice\n");
+
+            if (current_display == 0)
+            {
+                set_displays(0, 1);
+
+                current_display = 1;
+            }
+            else if (current_display == 1)
+            {
+                set_displays(0, 2);
+
+                current_display = 2;
+            }
+            else if (current_display == 2)
+            {
+                set_displays(0, 3);
+
+                current_display = 0;
+            }
+
+            button_event = 0; // Reset the flag
         }
+
+        if (switch_event)
+        {
+            switch_event = 0; // Reset the flag
+
+            int switch_values = get_sw();
+            handle_input(switch_values, &player, map);
+
+            // Update the current tile after movement
+            current_tile = map[player.positionY][player.positionX];
+
+            // Update the game state (e.g., drop stats)
+            drop_stats(&player, current_tile);
+
+            // Display the updated game frame
+            display_frame(player, current_tile, map);
+        }
+
+        // low-power sleep or wait instruction here
+        // to reduce CPU usage?
     }
-}
-
-void clear_screen() {
-    for (int i = 0; i < 50; i++) {
-        print("\n");
-    }
-}
-
-#define ESC 27
-
-void print_escape_sequence(const char *sequence) {
-    char buffer[10];
-    int i = 0;
-
-    buffer[i++] = ESC;
-    while (*sequence) {
-        buffer[i++] = *sequence++;
-    }
-    buffer[i] = '\0';
-    print(buffer);
 }
 
 void display_frame(struct player player, struct tile current_tile, struct tile map[10][10])
 {
-    print_escape_sequence("[2J"); // Clear screen
-    print_escape_sequence("[H");  // Move cursor to top-left
+    set_displays(0, 0);
+
+    print("\x1B[2J"); // Clear screen
+    print("\x1B[H");  // Move cursor to top-left
+
+    set_displays(0, 1);
 
     // Draw the frame
     print("+------------------------------------------------+ \n");
@@ -327,22 +353,22 @@ void display_frame(struct player player, struct tile current_tile, struct tile m
         append_str(buffer, "                                    \n");
         print(buffer);
     }
-    print("+------------------------------------------------+\n");
-    print("| Items in current tile:                         |\n");
-    for (int i = 0; i < STORAGE_SIZE; i++)
-    {
-        if (current_tile.storage[i] != NONE) // Only print non-empty slots
-        {
-            buffer[0] = '\0';
-            append_str(buffer, "|   Slot ");
-            int_to_str(i + 1, num_str);
-            append_str(buffer, num_str);
-            append_str(buffer, ": ");
-            append_str(buffer, COLLECTIBLE_NAMES[current_tile.storage[i]]);
-            append_str(buffer, "                                    \n");
-            print(buffer);
-        }
-    }
+    // print("+------------------------------------------------+\n");
+    // print("| Items in current tile:                         |\n");
+    // for (int i = 0; i < STORAGE_SIZE; i++)
+    // {
+    //     if (current_tile.storage[i] != NONE) // Only print non-empty slots
+    //     {
+    //         buffer[0] = '\0';
+    //         append_str(buffer, "|   Slot ");
+    //         int_to_str(i + 1, num_str);
+    //         append_str(buffer, num_str);
+    //         append_str(buffer, ": ");
+    //         // append_str(buffer, COLLECTIBLE_NAMES[current_tile.storage[i]]);
+    //         append_str(buffer, "                                    \n");
+    //         print(buffer);
+    //     }
+    // }
     print("+------------------------------------------------+\n");
     if (current_tile.interaction_text)
     {
@@ -655,10 +681,4 @@ void interact_with_tile(struct player player, struct tile current_tile, struct t
     {
         print("There is nothing to interact with here.\n");
     }
-}
-
-void handle_interrupt(void)
-{
-    // Implement your interrupt handling logic here
-    print("Interrupt handled\n");
 }

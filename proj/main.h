@@ -6,3 +6,6 @@ void int_to_str(int num, char *str);
 void append_str(char *dest, const char *src);
 
 extern void print(const char *);
+
+void start_game();
+

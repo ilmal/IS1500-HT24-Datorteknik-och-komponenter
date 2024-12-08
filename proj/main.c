@@ -95,7 +95,7 @@ int str_length(const char *str)
     return len;
 }
 
-// Func to drop stats -> food, water, oxygen
+// Func to drop stats -> food, water, oxygen (added gameover flag)
 void drop_stats(struct player *player, struct tile current_tile)
 {
     // Check if tiletype is outside rocket and only drop oxygen if so
@@ -115,19 +115,19 @@ void drop_stats(struct player *player, struct tile current_tile)
     if (player->oxygen <= 0)
     {
         print("You have run out of oxygen! Game over.\n");
-        while (1)
-            ; // Halt
+        while(1)
+            ;
     }
     if (player->water <= 0)
     {
         print("You have run out of water! Game over.\n");
-        while (1)
+        while(1)
             ;
     }
     if (player->food <= 0)
     {
         print("You have run out of food! Game over.\n");
-        while (1)
+        while(1)
             ;
     }
 }
@@ -353,7 +353,8 @@ void update_status(struct player player, struct tile map[10][10])
     set_leds(number_of_leds);
 }
 
-int main()
+// main renamed temporarily for performance tests
+void start_game()
 {
     labinit();
     struct tile map[10][10] = {
@@ -401,6 +402,7 @@ int main()
         }
 
         update_status(player, map);
+        break;
     }
 }
 

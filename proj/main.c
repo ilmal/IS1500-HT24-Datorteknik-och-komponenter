@@ -31,6 +31,7 @@ void interact_with_tile(struct player *player, struct tile *current_tile, struct
 void display_frame(struct player player, struct tile current_tile, struct tile map[10][10]);
 
 int current_display = 0;
+int game_running = 1;
 
 // Custom function to convert integer to string
 void int_to_str(int num, char *str)
@@ -115,20 +116,17 @@ void drop_stats(struct player *player, struct tile current_tile)
     if (player->oxygen <= 0)
     {
         print("You have run out of oxygen! Game over.\n");
-        while(1)
-            ;
+        game_running = 0;
     }
     if (player->water <= 0)
     {
         print("You have run out of water! Game over.\n");
-        while(1)
-            ;
+        game_running = 0;
     }
     if (player->food <= 0)
     {
         print("You have run out of food! Game over.\n");
-        while(1)
-            ;
+        game_running = 0;
     }
 }
 
@@ -375,7 +373,7 @@ void start_game()
     struct tile current_tile = map[player.positionY][player.positionX];
     display_frame(player, current_tile, map);
 
-    while (1)
+    while (game_running)
     {
         if (switch_event)
         {
@@ -402,7 +400,6 @@ void start_game()
         }
 
         update_status(player, map);
-        break;
     }
 }
 
@@ -784,8 +781,7 @@ void interact_with_tile(struct player *player, struct tile *current_tile, struct
                 print("Unfortunately, you did not survive the journey back to Earth.\n");
             }
 
-            while (1)
-                ; // End the game logic
+            game_running = 0;
         }
         else
         {

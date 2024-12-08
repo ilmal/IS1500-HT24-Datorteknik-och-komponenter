@@ -9,15 +9,16 @@ extern void print(const char *);
 extern void print_dec(int);
 extern void start_game();
 
-int main(){
+int main()
+{
     print("HELLO!!!");
     unsigned int game_time; // Create a variable called foo_time
 
     // Clear the mcycle CSR by writing 0 to it
-    asm volatile ("csrw mcycle, x0");
+    asm volatile("csrw mcycle, x0");
 
     // Call the foo function
-    // start_game();
+    start_game();
 
     // Read the mcycle value into foo_time
     asm("csrr %0, mcycle" : "=r"(game_time));

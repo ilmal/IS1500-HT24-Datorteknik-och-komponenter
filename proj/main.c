@@ -28,7 +28,6 @@ extern void print(const char *);
 // Function Prototypes
 void interact_with_tile(struct player *player, struct tile *current_tile, struct tile map[10][10], int switch_values);
 void display_frame(struct player player, struct tile current_tile, struct tile map[10][10]);
-int string_compare(const char *str1, const char *str2);
 
 int current_display = 0;
 
@@ -95,8 +94,10 @@ int str_length(const char *str)
     return len;
 }
 
+// Func to drop stats -> food, water, oxygen
 void drop_stats(struct player *player, struct tile current_tile)
 {
+    // Check if tiletype is outside rocket and only drop oxygen if so
     if (current_tile.outside_rocket == 1)
     {
         player->oxygen -= 1;
@@ -105,6 +106,7 @@ void drop_stats(struct player *player, struct tile current_tile)
     {
         player->oxygen = 99;
     }
+    // drop water and food
     player->water -= 1;
     player->food -= 1;
 
@@ -129,6 +131,7 @@ void drop_stats(struct player *player, struct tile current_tile)
     }
 }
 
+// print for a little while and then disappear
 void print_hold(char *s)
 {
     print(s);
@@ -182,6 +185,7 @@ void handle_input(int switch_values, struct player *player, struct tile map[10][
     // If any movement occurred
     if (moved)
     {
+        // Check that player moves in correct position
         if (new_positionX >= 0 && new_positionX < 10 &&
             new_positionY >= 0 && new_positionY < 10 &&
             map[new_positionY][new_positionX].type != EMPTY &&
@@ -306,14 +310,17 @@ void update_display(struct player player)
     }
 }
 
+// To show process using LEDs -> only possible after adding fuel to engine bay
 void update_status(struct player player, struct tile map[10][10])
 {
     int number_of_leds = 0b0000000000;
     struct tile storage_tile = map[4][1];
     struct tile engine_bay = map[5][0];
 
+    // If fuel in engine bay
     if (engine_bay.storage[0] == 9)
     {
+        // Shift one step to the left and add one 1bit
         number_of_leds <<= 1;
         number_of_leds += 0b0000000001;
     }
@@ -322,6 +329,7 @@ void update_status(struct player player, struct tile map[10][10])
         return;
     }
 
+    // check entire inventory for stuff in enum between 10-16 since these are essentials
     for (int i = 0; i < INVENTORY_SIZE; i++)
     {
         if (player.inventory[i] >= 10 && player.inventory[i] <= 16)
@@ -331,6 +339,7 @@ void update_status(struct player player, struct tile map[10][10])
         }
     }
 
+    // same logic but for storage
     for (int i = 0; i < STORAGE_SIZE; i++)
     {
         if (storage_tile.storage[i] >= 10 && storage_tile.storage[i] <= 16)
@@ -339,7 +348,7 @@ void update_status(struct player player, struct tile map[10][10])
             number_of_leds += 0b0000000001;
         }
     }
-
+    // use number_of_leds to mask which LEDs to light
     set_leds(number_of_leds);
 }
 
@@ -386,14 +395,15 @@ int main()
         if (button_event)
         {
             update_display(player);
-            current_display = (current_display + 1) % 3;
-            button_event = 0; // Reset the flag
+            current_display = (current_display + 1) % 3; // always 0, 1, 2
+            button_event = 0;                            // Reset the flag
         }
 
         update_status(player, map);
     }
 }
 
+// displays the entire map and info etc
 void display_frame(struct player player, struct tile current_tile, struct tile map[10][10])
 {
     print("\x1B[2J"); // Clear screen
@@ -403,6 +413,7 @@ void display_frame(struct player player, struct tile current_tile, struct tile m
     print("|            MARS SURVIVAL GAME                  | \n");
     print("+------------------------------------------------+ \n");
 
+    // Use buffer to concatenete strings w variables
     char buffer[256];
     buffer[0] = '\0';
 
@@ -469,23 +480,11 @@ void display_frame(struct player player, struct tile current_tile, struct tile m
     {
         buffer[0] = '\0';
         append_str(buffer, "| ");
-        append_str(buffer, current_tile.interaction_text);
+        append_str(buffer, current_tile.interaction_text); // retrieve interaction text from tiletype
         append_str(buffer, "\n");
         print(buffer);
     }
     print("+------------------------------------------------+\n");
-}
-
-int string_compare(const char *str1, const char *str2)
-{
-    while (*str1 && *str2)
-    {
-        if (*str1 != *str2)
-            return (*str1 - *str2);
-        str1++;
-        str2++;
-    }
-    return (*str1 - *str2);
 }
 
 // Wait for yes/no input using EAST (yes) and WEST (no)
@@ -550,6 +549,8 @@ void interact_with_tile(struct player *player, struct tile *current_tile, struct
             {
                 // Transfer item from inventory to storage
                 print("Your inventory:\n");
+
+                // print inventory logic
                 for (int i = 0; i < INVENTORY_SIZE; i++)
                 {
                     char buffer[256];
@@ -606,6 +607,7 @@ void interact_with_tile(struct player *player, struct tile *current_tile, struct
                     else if (slot_switches & SWITCH_SLOT_5)
                         chosen_slot = 5;
 
+                    // choose thing to pluck based on switch value
                     if (chosen_slot > 0 && chosen_slot <= INVENTORY_SIZE)
                     {
                         enum COLLECTIBLETYPE item = player->inventory[chosen_slot - 1];
@@ -761,6 +763,7 @@ void interact_with_tile(struct player *player, struct tile *current_tile, struct
                 break;
             }
 
+            // math magic to calculate win or loss based on percentage chance
             unsigned long seed = 12345;
             seed = (1103515245 * seed + 12345);
             unsigned int random_value = (unsigned)(seed >> 16) & 0x7FFF;
@@ -874,6 +877,7 @@ void interact_with_tile(struct player *player, struct tile *current_tile, struct
     {
         print_hold("You are in the harsh Martian wasteland.\n");
 
+        // Find medkit in wasteland pos. (4, 0)
         if (player->positionY == 0 && player->positionX == 4)
         {
             print("Do you want to look around the wasteland?\n");
@@ -881,6 +885,17 @@ void interact_with_tile(struct player *player, struct tile *current_tile, struct
             {
                 print("After looking around, you found a medical kit!\n");
                 add_to_inventory(player, MEDICAL_KIT);
+            }
+        }
+
+        // Find map
+        if (player->positionY == 10 && player->positionX == 1)
+        {
+            print("Do you want to look around the wasteland?\n");
+            if (wait_for_yes_no())
+            {
+                print("After looking around, you found a MAP!\n");
+                add_to_inventory(player, MAP);
             }
         }
 

@@ -889,7 +889,7 @@ void interact_with_tile(struct player *player, struct tile *current_tile, struct
         }
 
         // Find map
-        if (player->positionY == 10 && player->positionX == 1)
+        if (player->positionY == 7 && player->positionX == 1)
         {
             print("Do you want to look around the wasteland?\n");
             if (wait_for_yes_no())

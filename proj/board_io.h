@@ -6,6 +6,7 @@ int get_btn(void);
 int get_sw(void);
 void set_displays(int display_number, int value);
 void set_leds(int value);
+int get_leds(int led_mask);
 void labinit(void);
 void handle_interrupt(unsigned cause);
 

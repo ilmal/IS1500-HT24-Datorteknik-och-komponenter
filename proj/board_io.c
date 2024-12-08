@@ -110,7 +110,7 @@ void set_leds(int led_mask)
     *led_start = led_mask; // set the value of led_start to led_mask (sequence of 1s and 0s)
 }
 
-int get_leds(int led_mask)
+int get_leds()
 {
     return *led_start & 0b1111111111;
 }

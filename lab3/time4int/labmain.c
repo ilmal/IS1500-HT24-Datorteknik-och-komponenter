@@ -169,7 +169,6 @@ void labinit(void)
 
   *interupt_mask_btn = 0b1; // enable interrupt for button by setting interrupt mask to 1
 
-  // Assignment 3h -- enable interrupts  
   print("Enabling interrupts\n");
   enable_interrupt();      // Enable global interrupts and timer interrupts (+ button)
   print("Interrupts enabled\n");

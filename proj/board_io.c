@@ -76,6 +76,26 @@ void set_displays(int display_number, int value)
     case 9:
         display_value = 24; // 0 011 000 in binary
         break;
+    case 10:
+        // F
+        display_value = 0b0001110;
+        break;
+    case 11:
+        // o
+        display_value = 0b0100011;
+        break;
+    case 12:
+        // d
+        display_value = 0b0100001;
+        break;
+    case 13:
+        // H
+        display_value = 0b0001001;
+        break;
+    case 100:
+        // empty
+        display_value = 0b1111111;
+        break;
     default:
         display_value = 64; // set 0 as default number
         break;
@@ -88,6 +108,11 @@ void set_displays(int display_number, int value)
 void set_leds(int led_mask)
 {
     *led_start = led_mask; // set the value of led_start to led_mask (sequence of 1s and 0s)
+}
+
+int get_leds(int led_mask)
+{
+    return *led_start & 0b1111111111;
 }
 
 void labinit(void)

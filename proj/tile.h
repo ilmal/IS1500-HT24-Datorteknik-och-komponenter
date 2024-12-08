@@ -14,7 +14,7 @@ struct tile
   char *interaction_text;
 
   // storage
-  enum COLLECTIBLETYPE storage[50]; // storage can store more than enough
+  enum COLLECTIBLETYPE storage[5]; // storage can store more than enough
 
   // collectibles
   // int collectibles;

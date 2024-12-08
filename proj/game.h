@@ -2,7 +2,7 @@
 #define GAME_H
 
 #define INVENTORY_SIZE 5
-#define STORAGE_SIZE 50
+#define STORAGE_SIZE 5
 
 // Enum for TILETYPE
 enum TILETYPE
@@ -39,7 +39,7 @@ extern const char *TILETYPE_MAP_NAMES[];
 // Enum for COLLECTIBLETYPE
 enum COLLECTIBLETYPE
 {
-  NONE = 0,           // represents empty slot
+  NONE,               // represents empty slot
   TARDIGRADES,        // 1
   SEDIMENTARY_LAYERS, // 2
   RSL_IMAGES,         // 3

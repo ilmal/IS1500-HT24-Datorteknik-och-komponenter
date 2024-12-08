@@ -8,9 +8,9 @@ struct player create_player()
   // Initialize player attributes
   new_player.positionX = 0;
   new_player.positionY = 3;
-  new_player.food = 100;
-  new_player.oxygen = 100;
-  new_player.water = 100;
+  new_player.food = 99;
+  new_player.oxygen = 99;
+  new_player.water = 99;
 
   // Initialize inventory
   for (int i = 0; i < INVENTORY_SIZE; i++)

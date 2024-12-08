@@ -71,6 +71,7 @@ Success depends on gathered resources and the ship's condition.
 ## Losing the Game
 
 The game ends if any vital resource (**oxygen**, **water**, or **food**) depletes completely.
+Depending on the resources and items you have gathered on the surface, your survival chances on the way back will also vary.
 
 ## Controls
 
@@ -83,10 +84,10 @@ The game ends if any vital resource (**oxygen**, **water**, or **food**) deplete
 
 ### Interactions
 
-- **Interact**: Toggle switch 9
-- **Back**: Toggle switch 8
-- **Drink**: Toggle switch 6
-- **Eat**: Toggle switch 7
+- **Interact**: Toggle switch 10
+- **Back**: Toggle switch 9
+- **Drink**: Toggle switch 7
+- **Eat**: Toggle switch 8
 
 ### Inventory Slots
 
@@ -95,7 +96,7 @@ The game ends if any vital resource (**oxygen**, **water**, or **food**) deplete
 - **Slot 3**: Toggle switch 3
 - **Slot 4**: Toggle switch 4
 - **Slot 5**: Toggle switch 5
-- **Slot 5**: Toggle switch 6
+- **Slot 6**: Toggle switch 6
 
 ## Getting Started
 

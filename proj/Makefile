@@ -6,7 +6,7 @@ OBJECTS := $(OBJECTS:.S=.o)
 LINKER ?= $(SRC_DIR)/dtekv-script.lds
 
 TOOLCHAIN ?= riscv32-unknown-elf-
-CFLAGS ?= -Wall -O3 -mabi=ilp32 -march=rv32imzicsr
+CFLAGS ?= -Wall -O1 -mabi=ilp32 -march=rv32imzicsr
 
 # Exclude boot.o from OBJECTS to prevent multiple definitions
 OBJECTS_NO_BOOT := $(filter-out boot.o,$(OBJECTS))

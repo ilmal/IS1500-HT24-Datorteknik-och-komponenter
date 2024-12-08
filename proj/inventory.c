@@ -152,7 +152,7 @@ void check_storage(struct player *player, struct tile *storage_tile)
   append_str(buffer, "\n");
   print(buffer);
 
-  print("You have stored the following items: \n");
+  print_hold("You have stored the following items: \n");
   for (int i = 0; i < STORAGE_SIZE; i++)
   {
     if (storage_tile->storage[i] != NONE && storage_tile->storage[i] >= FOOD && storage_tile->storage[i] <= CLOTHING)

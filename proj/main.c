@@ -134,7 +134,7 @@ void drop_stats(struct player *player, struct tile current_tile)
 void print_hold(char *s)
 {
     print(s);
-    int error_wait = 4;
+    int error_wait = 2;
     while (error_wait)
     {
         if (timer_event)
@@ -175,7 +175,7 @@ void handle_input(int switch_values, struct player *player, struct tile map[10][
         new_positionY += 1;
         moved = 1;
     }
-    if (switch_values & SWITCH_NORTH)
+    if (switch_values & SWITCH_BACK)
     {
         new_positionY -= 1;
         moved = 1;
@@ -186,16 +186,28 @@ void handle_input(int switch_values, struct player *player, struct tile map[10][
     {
         // Check that player moves in correct position
         if (new_positionX >= 0 && new_positionX < 10 &&
-            new_positionY >= 0 && new_positionY < 10 &&
-            map[new_positionY][new_positionX].type != EMPTY &&
-            map[new_positionX][new_positionY].type != MOUNTAIN)
+            new_positionY >= 0 && new_positionY < 10)
         {
-            player->positionX = new_positionX;
-            player->positionY = new_positionY;
+            if (!(map[new_positionY][new_positionX].type == EMPTY))
+            {
+                if (!(map[new_positionY][new_positionX].type == MOUNTAIN))
+                {
+                    player->positionX = new_positionX;
+                    player->positionY = new_positionY;
+                }
+                else
+                {
+                    print_hold("You cant move here, there is a mountain in you way!\n");
+                }
+            }
+            else
+            {
+                print_hold("You cant move here, there is a rocket in you way! Perhaps you can find a door?\n");
+            }
         }
         else
         {
-            print_hold("You cannot move in that direction.\n");
+            print_hold("Don't go that way, beyond the map you will get lost!\n");
         }
     }
 
@@ -354,7 +366,9 @@ void update_status(struct player player, struct tile map[10][10])
 // main renamed temporarily for performance tests
 void start_game()
 {
+    print("1");
     labinit();
+    print("2");
     struct tile map[10][10] = {
         {ct(POND), ct(LOOSE_SOIL), ct(WASTELAND), ct(WASTELAND), ct(WASTELAND), ct(POND), ct(WASTELAND), ct(WASTELAND), ct(MOUNTAIN), ct(POND)},
         {ct(SHARP_ROCKS), ct(WASTELAND), ct(WASTELAND), ct(WASTELAND), ct(WASTELAND), ct(WASTELAND), ct(POND), ct(WASTELAND), ct(MOUNTAIN), ct(CANYON)},
@@ -368,7 +382,10 @@ void start_game()
         {ct(CAVE), ct(WASTELAND), ct(WASTELAND), ct(MOUNTAIN), ct(POND), ct(WASTELAND), ct(WASTELAND), ct(CANYON), ct(MOUNTAIN), ct(POND)},
     };
 
+    print("3");
+
     struct player player = create_player();
+    print("1");
 
     struct tile current_tile = map[player.positionY][player.positionX];
     display_frame(player, current_tile, map);
@@ -444,7 +461,7 @@ void display_frame(struct player player, struct tile current_tile, struct tile m
         {
             if (player.positionX == x && player.positionY == y)
             {
-                append_str(line_buffer, "[🫵 ] ");
+                append_str(line_buffer, "[🎅] ");
             }
             else
             {
@@ -507,13 +524,16 @@ int wait_for_yes_no(void)
 void wait_for_exit(const char *msg)
 {
     if (!msg)
-        msg = "Press NORTH to exit.\n";
-    print(msg);
+        msg = "Press BACK to exit.\n";
+    print_hold(msg);
     while (1)
     {
         int sv = get_sw();
-        if (sv & SWITCH_NORTH)
+        if (sv & SWITCH_BACK)
+        {
+            print_hold("Exiting...\n");
             break;
+        }
     }
 }
 
@@ -534,21 +554,23 @@ void interact_with_tile(struct player *player, struct tile *current_tile, struct
         {
             switch_values = get_sw();
 
-            if (switch_values & SWITCH_NORTH)
+            if (switch_values & SWITCH_BACK)
             {
-                print("Exiting storage.\n");
+                print_hold("Exiting storage.\n");
                 return;
             }
             else if (switch_values & SWITCH_EAST)
             {
                 // View storage items
+                print_hold("Storage items:\n");
                 check_storage(player, current_tile);
                 break;
             }
             else if (switch_values & SWITCH_WEST)
             {
+
                 // Transfer item from inventory to storage
-                print("Your inventory:\n");
+                print_hold("Your inventory:\n");
 
                 // print inventory logic
                 for (int i = 0; i < INVENTORY_SIZE; i++)
@@ -632,7 +654,7 @@ void interact_with_tile(struct player *player, struct tile *current_tile, struct
             else if (switch_values & SWITCH_SOUTH)
             {
                 // Transfer item from storage to inventory
-                print("Storage items:\n");
+                print_hold("Storage items:\n");
                 for (int i = 0; i < STORAGE_SIZE; i++)
                 {
                     if (current_tile->storage[i] != NONE)
@@ -757,20 +779,21 @@ void interact_with_tile(struct player *player, struct tile *current_tile, struct
                 break;
             case 0b1111111111:
                 print("10");
-                chance_to_survive = 100;
+                chance_to_survive = 98;
                 break;
             default:
                 break;
             }
 
-            // math magic to calculate win or loss based on percentage chance
-            unsigned long seed = 12345;
-            seed = (1103515245 * seed + 12345);
-            unsigned int random_value = (unsigned)(seed >> 16) & 0x7FFF;
-            random_value = (random_value % 100) + 1;
+            // math magic (magic = food) to calculate win or loss based on percentage chance
+            int random_value = (player->food * player->water * 6942069) % 100;
             print("Your chance to survive was: ");
             print_dec(chance_to_survive);
             print("%\n");
+
+            print("The random value was: ");
+            print_dec(random_value);
+            print("\n");
 
             if (random_value <= chance_to_survive)
             {
@@ -898,11 +921,55 @@ void interact_with_tile(struct player *player, struct tile *current_tile, struct
             }
         }
 
-        // Find spare parts
+        if (player->positionY == 2 && player->positionX == 4)
+        {
+            print("Do you want to look around the wasteland?\n");
+            if (wait_for_yes_no())
+            {
+                print("After looking around, you found spare parts!\n");
+                add_to_inventory(player, SPARE_PARTS);
+            }
+        }
 
-        // Find teddy bear
+        if (player->positionY == 6 && player->positionX == 4)
+        {
+            print("Do you want to look around the wasteland?\n");
+            if (wait_for_yes_no())
+            {
+                print("After looking around, you found a teddy bear!\n");
+                add_to_inventory(player, TEDDY_BEAR);
+            }
+        }
 
-        // Find
+        if (player->positionY == 5 && player->positionX == 4)
+        {
+            print("Do you want to look around the wasteland?\n");
+            if (wait_for_yes_no())
+            {
+                print("After looking around, you found a blanket!\n");
+                add_to_inventory(player, BLANKET);
+            }
+        }
+
+        if (player->positionY == 4 && player->positionX == 4)
+        {
+            print("Do you want to look around the wasteland?\n");
+            if (wait_for_yes_no())
+            {
+                print("After looking around, you found cozy clothing!\n");
+                add_to_inventory(player, CLOTHING);
+            }
+        }
+
+        if (player->positionY == 3 && player->positionX == 4)
+        {
+            print("Do you want to look around the wasteland?\n");
+            if (wait_for_yes_no())
+            {
+                print("After looking around, you found a cool rover arm!\n");
+                add_to_inventory(player, OLD_ROVER_PARTS);
+            }
+        }
 
         wait_for_exit(NULL);
     }

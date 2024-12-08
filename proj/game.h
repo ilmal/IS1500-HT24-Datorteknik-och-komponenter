@@ -1,7 +1,7 @@
 #ifndef GAME_H
 #define GAME_H
 
-#define INVENTORY_SIZE 5
+#define INVENTORY_SIZE 6
 #define STORAGE_SIZE 5
 
 // Enum for TILETYPE

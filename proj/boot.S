@@ -130,8 +130,8 @@ loop:
 enable_interrupt:
 
 	csrsi    mstatus, 3
-	csrsi    mie, 16                                                                                                                                                  # Enable machine timer interrupt (set bit nr16 in mie -> custom -> timer).
-	csrsi    mie, 17                                                                                                                                                  # enable global interrupts (MIE) by setting bit nr 3
-	csrsi    mie, 18                                                                                                                                                  # Enable machine button interrupt (set bit nr18 in mie -> custom -> button).
+# csrsi mie, 16 # Enable machine timer interrupt (set bit nr16 in mie -> custom -> timer).
+# csrsi mie, 17 # enable global interrupts (MIE) by setting bit nr 3
+# csrsi mie, 18 # Enable machine button interrupt (set bit nr18 in mie -> custom -> button).
 	jr       ra                                                                                                                                                       # Return from function
 

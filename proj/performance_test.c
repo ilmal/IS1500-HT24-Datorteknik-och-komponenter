@@ -5,10 +5,12 @@
 #include "inventory.h"
 #include "board_io.h"
 
+// external funcs
 extern void print(const char *);
 extern void print_dec(int);
 extern void start_game();
 
+// Function that uses inline assembly to clear counter registers
 void clear_counters(){
     print("Clearing performance counters...");
     asm volatile("csrw mcycle, x0");        // clear register that counts the number of clock cycles that elapsed
@@ -23,17 +25,8 @@ void clear_counters(){
     print("Performance counters cleared.\n");
 }
 
+// Function that uses inline assembly to read counter registers
 void read_counters(unsigned int* game_time) {
-    // print("Reading performance counters...\n");
-    // asm volatile("csrr mcycle, x0");        // reads register that counts the number of clock cycles that elapsed
-    // asm volatile("csrr minstret, x0");      // reads register that counts the number of instructions that have been retired
-    // asm volatile("csrr mhpmcounter3, x0");      // reads register that counts the number of memory instructions that have been retired
-    // asm volatile("csrr mhpmcounter4, x0");      // reads register that counts the number of times an instruction-fetch resulted in a I-cache miss
-    // asm volatile("csrr mhpmcounter5, x0");      // reads register that counts the number of times an memory operation resulted in a D-cache miss
-    // asm volatile("csrr mhpmcounter6, x0");      // reads register that counts the number of stalls the CPU experienced due to I-cache misses
-    // asm volatile("csrr mhpmcounter7, x0");      // reads register that counts the number of stalls the CPU experienced due to D-cache misses
-    // asm volatile("csrr mhpmcounter8, x0");      // reads register that counts the number of stalls that the CPU experienced due to data hazards that could not be solved by forwarding
-    // asm volatile("csrr mhpmcounter9, x0");      // reads register that counts the number of stalls that the CPU experienced due to expensive ALU operations
 
     // Read clock cycle register
     asm("csrr %0, mcycle" : "=r"(*game_time));
@@ -92,18 +85,14 @@ void read_counters(unsigned int* game_time) {
 
 int main()
 {
-    // print("HELLO!!!");
-    unsigned int game_time; // Create a variable called foo_time
+    unsigned int game_time; // Create a variable called game_time
 
+    // clear all counters before executing function
     clear_counters();
 
-    // Call the foo function
+    // Call the start_game function
     start_game();
 
+    // read all counters after game execution
     read_counters(&game_time);
-
-    // // Print out the value of foo_time (requires print_dec in time4riscv.zip)
-    // print("\nTime for start_game() was: ");
-    // print_dec(game_time);
-    // print("\n");
 }

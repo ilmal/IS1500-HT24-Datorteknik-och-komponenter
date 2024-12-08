@@ -4,6 +4,8 @@
 
 extern void print(const char *);
 
+// every tiletype will be inserted with custom values for diff attributes
+
 // storage struct
 struct tile storage()
 {
@@ -222,6 +224,7 @@ struct tile empty()
 struct tile ct(enum TILETYPE type)
 {
   {
+    // depending on input enum TILETYPE, return tile from a certain type
     switch (type)
     {
     case STORAGE:

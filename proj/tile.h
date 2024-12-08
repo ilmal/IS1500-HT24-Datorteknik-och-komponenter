@@ -6,6 +6,7 @@
 // Forward declaration of player struct
 struct player;
 
+// define attributes of a tile
 struct tile
 {
   enum TILETYPE type;
@@ -17,14 +18,13 @@ struct tile
   enum COLLECTIBLETYPE storage[5]; // storage can store more than enough
 
   // collectibles
-  // int collectibles;
   enum COLLECTIBLETYPE collectible;
 
   // drop oxygen only if outside
   int outside_rocket;
 };
 
-// Function prototypes
+// Function prototypes for all tiletypes + create tile
 struct tile storage();
 struct tile chambers();
 struct tile cockpit();

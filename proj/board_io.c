@@ -1,7 +1,9 @@
+// File with all board input/output funcs etc, many were created for lab3
+
 #include "board_io.h"
 volatile int *led_start = (volatile int *)0x04000000; // pointer to memory address for leds
 
-// Assignment 2 -- Timers
+// Assignment 2 from lab3 -- Timers
 volatile int *timer_status = (volatile int *)0x04000020;  // Address for the timer
 volatile int *timer_control = (volatile int *)0x04000024; // Control register
 volatile int *timer_periodl = (volatile int *)0x04000028; // Event flag register
@@ -15,39 +17,45 @@ volatile int switch_event = 0;
 volatile int timer_event = 0;
 volatile int button_event = 0;
 
+// import print externally
 extern void print(const char *);
 
+// Check button status func 
 int get_btn(void)
 {
-    volatile int *btn = (volatile int *)0x040000d0; // set the address of the button on the board
-    int btn_value = *btn;                           // set btn_value to the value of the button at address btn
-    return btn_value & 0x1;                         // perform and operation to check one lsb to see button status
+    volatile int *btn = (volatile int *)0x040000d0; // set the address of the button status on the board
+    int btn_value = *btn;                           // dereference and update btn_value to the value of the button at address btn
+    return btn_value & 0x1;                         // perform 'and'-operation to check one lsb to see button status
 }
 
+// Check status of switches
 int get_sw(void)
 {
     int *sw = (int *)0x04000010; // set the address of all the toggle switches
-    int sw_value = *sw;          // retrieve value of switches in adress sw and set sw_value to that value
+    int sw_value = *sw;          // retrieve value of switches in adress sw and update sw_value to that value
     return sw_value & 0x3FF;     // 3ff = 001 111 111 111 - > finds value (on/off) for each swtich (there are 10 toggles)
 }
 
+// Deternmine which number to set on which display for 7seg displays
 void set_displays(int display_number, int value)
 {
-    // check if the display number is valid
+    // check if the display number is invalid (0-5)
     if (display_number > 5 || display_number < 0)
     {
         print("Invalid display number\n");
         return;
     }
 
-    int display_value = 0;                       // value to set on each display to represent a specific number
+
+    int display_value = 0;                       // value to set on each display to represent a specific number (ascii)
     volatile int offset = 0x10 * display_number; // offset to set which one of the displays to use
 
     // switch statement to set chosen number on display using binary (0 is on, 1 is off)
+    // 0 means on and 1 means off (for a segment)
     switch (value)
     {
     case 0:
-        display_value = 64; // 1 000 000 in binary
+        display_value = 64; // 1 000 000 in binary 
         break;
     case 1:
         display_value = 121; // 1 111 001 in binary
@@ -77,7 +85,7 @@ void set_displays(int display_number, int value)
         display_value = 24; // 0 011 000 in binary
         break;
     case 10:
-        // F
+        // F 
         display_value = 0b0001110;
         break;
     case 11:
@@ -101,15 +109,17 @@ void set_displays(int display_number, int value)
         break;
     }
 
-    volatile int *display_address = (volatile int *)(0x04000050 + offset); // set the address of the chosen display
-    *display_address = display_value;                                      // set value of display_address to display_value which is set in swtich cases
+    volatile int *display_address = (volatile int *)(0x04000050 + offset); // set the address of the chosen display (find correct w offset)
+    *display_address = display_value;          // set value of display_address to display_value which is set in swtich cases
 }
 
+// Func to choose which leds to light up
 void set_leds(int led_mask)
 {
-    *led_start = led_mask; // set the value of led_start to led_mask (sequence of 1s and 0s)
+    *led_start = led_mask; // set the value of led_start to the chosen led_mask (sequence of 1s and 0s)
 }
 
+// Func to retrieve which leds are on by using AND-operator
 int get_leds()
 {
     return *led_start & 0b1111111111;

@@ -1,6 +1,7 @@
 #ifndef GAME_H
 #define GAME_H
 
+// Set size of inventory and storage
 #define INVENTORY_SIZE 6
 #define STORAGE_SIZE 5
 
@@ -33,7 +34,7 @@ enum TILETYPE
 
 extern const char *TILETYPE_NAMES[];
 
-// Enum for TILETYPE_MAP
+// Retrieve emojis
 extern const char *TILETYPE_MAP_NAMES[];
 
 // Enum for COLLECTIBLETYPE
@@ -47,7 +48,7 @@ enum COLLECTIBLETYPE
   OLD_ROVER_PARTS,    // 5
   ICE,                // 6
 
-  // essential stuff
+  // essentials
   FOOD,            // 7
   BOTTLE_OF_WATER, // 8
   FUEL,            // 9

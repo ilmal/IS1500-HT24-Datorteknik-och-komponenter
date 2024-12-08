@@ -3,6 +3,7 @@
 
 #include "game.h"
 
+// struct player
 struct player
 {
   int positionX;
@@ -13,6 +14,7 @@ struct player
   int water;
 };
 
+// create player func
 struct player create_player();
 
 #endif // PLAYER_H
